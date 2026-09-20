@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/../ds_basics/.idea/ds_basics.iml" filepath="$PROJECT_DIR$/../ds_basics/.idea/ds_basics.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/dsa_patterns_data_structure_wise.iml" filepath="$PROJECT_DIR$/.idea/dsa_patterns_data_structure_wise.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../../../way2f/patterns/.idea/patterns.iml" filepath="$PROJECT_DIR$/../../../../way2f/patterns/.idea/patterns.iml" />
+    </modules>
+  </component>
+</project>
