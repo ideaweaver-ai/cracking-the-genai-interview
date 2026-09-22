@@ -53,15 +53,23 @@ def function_call_stack():
     first_function()
     # Each call is added to the stack; functions return in reverse call order.
 
+def sum_of_numbers(num1, num2):
+    print("num1: ", num1)
+    print("num2: ", num2)
+    print("sum: ", num1 + num2)
+    return num1 + num2
 
-EXAMPLES = {
-    "immutable_values": immutable_values,
-    "mutable_collections": mutable_collections,
-    "call_stack": function_call_stack,
-}
+
+# EXAMPLES = {
+#     "immutable_values": immutable_values,
+#     "mutable_collections": mutable_collections,
+#     "call_stack": function_call_stack,
+# }
 
 if __name__ == "__main__":
-    import sys
+    # import sys
 
-    for example in ([sys.argv[1]] if len(sys.argv) > 1 else EXAMPLES):
-        EXAMPLES[example]()
+    # for example in ([sys.argv[1]] if len(sys.argv) > 1 else EXAMPLES):
+    #     EXAMPLES[example]()
+
+    print(sum_of_numbers(100, 200))

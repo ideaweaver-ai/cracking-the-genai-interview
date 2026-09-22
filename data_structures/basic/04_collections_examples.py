@@ -16,6 +16,19 @@ def dictionaries():
         counts[letter] = counts.get(letter, 0) + 1
     print(counts, "b" in counts)
 
+    fruits = ["apple", "banana", "apple", "orange", "banana"]
+    fruit_counts = {}
+    # Without get(key, 0) + 1, fruit_counts[key] = fruit_counts[key] + 1
+    # raises KeyError (key not found) when a fruit first appears.
+    try:
+        fruit_counts["apple"] = fruit_counts["apple"] + 1
+    except KeyError as error:
+        print(f"KeyError: {error} (key not found)")
+
+    for fruit in fruits:
+        fruit_counts[fruit] = fruit_counts.get(fruit, 0) + 1
+    print(fruit_counts)  # {'apple': 2, 'banana': 2, 'orange': 1}
+
 
 def sets():
     attendees = {"Ada", "Lin", "Ada"}
