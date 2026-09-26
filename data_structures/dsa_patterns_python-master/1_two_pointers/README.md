@@ -1,6 +1,6 @@
 # Two Pointers
 
-Study order, groupings, and difficulty labels follow the supplied table.
+Study order reflects the requested reordering; difficulty labels follow the supplied table.
 
 ## Practice
 
@@ -11,17 +11,17 @@ Study order, groupings, and difficulty labels follow the supplied table.
 | 3 | 977 | Squaring a Sorted Array | easy | [3_square_sorted_array.py](3_square_sorted_array.py) |
 | 4 | 75 | Dutch National Flag Problem | medium | [4_dutch_flag.py](4_dutch_flag.py) |
 | 5 | 15 | Triplet Sum to Zero | medium | [5_three_pair_sum.py](5_three_pair_sum.py) |
-| 6 | 581 | Minimum Subarray to Sort | medium | [6_min_subarray_to_sort.py](6_min_subarray_to_sort.py) |
-| 7 | 186 | Reverse Words in a String II | medium | [7_reverse_words_in_a_string_ii.py](7_reverse_words_in_a_string_ii.py) |
+| 6 | 16 | Triplet Sum Close to Target | medium | [6_triplet_sum_close_to_target.py](6_triplet_sum_close_to_target.py) |
+| 7 | 259 | Triplets with Smaller Sum | medium | [7_triplets_with_smaller_sum.py](7_triplets_with_smaller_sum.py) |
+| 8 | 186 | Reverse Words in a String II | medium | [8_reverse_words_in_a_string_ii.py](8_reverse_words_in_a_string_ii.py) |
 
 ## Homework
 
 | # | LeetCode | Problem | Difficulty | Local solution |
 | --: | --: | --- | --- | --- |
-| 8 | 27 | Remove all instances of a key | easy | [8_remove_all_instances_of_key_in_place.py](8_remove_all_instances_of_key_in_place.py) |
-| 9 | 18 | Quadruple Sum to Target | hard | [9_pc1_quadruplets_sum.py](9_pc1_quadruplets_sum.py) |
-| 10 | 16 | Triplet Sum Close to Target | medium | [10_triplet_sum_close_to_target.py](10_triplet_sum_close_to_target.py) |
-| 11 | 259 | Triplets with Smaller Sum | medium | [11_triplets_with_smaller_sum.py](11_triplets_with_smaller_sum.py) |
+| 9 | 27 | Remove all instances of a key | easy | [9_remove_all_instances_of_key_in_place.py](9_remove_all_instances_of_key_in_place.py) |
+| 10 | 581 | Minimum Subarray to Sort | medium | [10_min_subarray_to_sort.py](10_min_subarray_to_sort.py) |
+| 11 | 18 | Quadruple Sum to Target | hard | [11_pc1_quadruplets_sum.py](11_pc1_quadruplets_sum.py) |
 | 12 | 713 | Subarrays with Product Less than a Target — solve LeetCode also, slight variation | medium | [12_subarrays_with_prod_less_than_target.py](12_subarrays_with_prod_less_than_target.py) |
 
 ## Hard
@@ -34,7 +34,7 @@ Study order, groupings, and difficulty labels follow the supplied table.
 ## Variants and additional problems
 
 - [All unique pairs](1_2_generic_pair_with_target_sum.py): Two Sum variant requiring sorted input.
-- [Return triplets with smaller sum](11_2_triplets_with_smaller_sum.py): returns triplets; LeetCode 259 asks for the count.
+- [Return triplets with smaller sum](7_2_triplets_with_smaller_sum.py): returns triplets; LeetCode 259 asks for the count.
 - [Count subarrays with product less than k](12_2_count_subarrays_with_prod_less_than_k.py): the counting version for LeetCode 713.
 - [Container With Most Water](12_container_with_most_water.py): LeetCode 11; a different problem from Trapping Rain Water (42).
 - [Next Permutation](13_next_permutation.py): LeetCode 31.
