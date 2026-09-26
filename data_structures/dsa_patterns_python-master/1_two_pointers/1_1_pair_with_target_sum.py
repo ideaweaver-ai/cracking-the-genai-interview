@@ -1,3 +1,5 @@
+# LeetCode: 1 - Two Sum (pair-returning variants; LeetCode returns indices)
+
 """
 Q: You are given an array of integers nums and an integer target, return the two numbers such that they add up to target.
 
@@ -11,10 +13,10 @@ Output: [2,7]
 """
 
 
-#  Brute Force Solution - O(N^2) time | O(1) space
 from typing import Any
 
 
+# Time: O(n^2) | Space: O(1)
 def pair_with_targetsum_brute_force(arr, target_sum):
     for i in range(len(arr)):
         for j in range(i+1, len(arr)):
@@ -22,7 +24,7 @@ def pair_with_targetsum_brute_force(arr, target_sum):
                 return [arr[i], arr[j]]
     return []
 
-# O(N*log(N)) time | O(1) space
+# Time: O(n log n) | Space: O(n) auxiliary for Python sorting
 def pair_with_targetsum(arr, target_sum):
     # o/p var
     result = []
@@ -45,7 +47,7 @@ def pair_with_targetsum(arr, target_sum):
     return result
 
 
-# O(n) hashmap solution
+# Time: O(n) | Space: O(n) for the hash map
 def pair_with_targetsum_hashmap(arr, target_sum):
     num_index_map = {}
     for index, num in enumerate[Any](arr):

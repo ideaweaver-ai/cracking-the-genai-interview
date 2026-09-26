@@ -1,4 +1,6 @@
-# O(N) time | O(1) space
+# LeetCode: 26 - Remove Duplicates from Sorted Array
+
+# Time: O(n) | Space: O(1)
 def remove_duplicates(nums):
     # Placeholder to track where next unique num should be placed
     next_unique_num_index = 1

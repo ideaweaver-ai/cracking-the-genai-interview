@@ -1,8 +1,11 @@
+# LeetCode: N/A - Interview Cake: First Come, First Served
+
 # Interview cake: First come, first serve
 
 import unittest
 
 
+# Time: O(s) | Space: O(1); s = number of served orders
 def is_first_come_first_served(take_out_orders, dine_in_orders, served_orders):
     take_out_orders_index = 0
     dine_in_orders_index = 0

@@ -1,4 +1,6 @@
-# O(N) time | O(1) space
+# LeetCode: 75 - Sort Colors (Dutch National Flag)
+
+# Time: O(n) | Space: O(1)
 def dutch_flag_sort(nums):
     # Indexes point to where next 0 and 2 element should be put
     # all elements < next_zero should be 0, all elements > next_two should be 2

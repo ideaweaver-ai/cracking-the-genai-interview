@@ -1,3 +1,6 @@
+# LeetCode: 1 - Two Sum (variation: all unique value pairs in a sorted array)
+
+# Time: O(n) | Space: O(1) auxiliary + O(k) output for k pairs; input must be sorted
 def pair_with_targetsum(arr, target_sum):
     result = []
     left, right = 0, len(arr)-1

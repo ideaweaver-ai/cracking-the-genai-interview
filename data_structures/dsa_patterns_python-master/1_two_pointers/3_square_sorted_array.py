@@ -1,4 +1,6 @@
-# O(N) time | O(N) space for output
+# LeetCode: 977 - Squares of a Sorted Array
+
+# Time: O(n) | Space: O(n) for output; O(1) auxiliary
 def make_squares(nums):
     sorted_squares = [0 for _ in range(len(nums))]
     # two pointers

@@ -1,3 +1,5 @@
+# LeetCode: 15 - 3Sum
+
 from typing import List
 
 # Algo
@@ -9,7 +11,7 @@ from typing import List
 # 4. Call pair_sum in each for loop
 # 5. Compared to brute force this algo will reduce time complexity by one order
 
-# Time: O(n**2) + O(n * log(n)) = O(n**2)| O(N) space - for sorting
+# Time: O(n^2) | Space: O(n) sorting + O(k) output; k = number of triplets
 def threeSum(nums: List[int]) -> List[List[int]]:
     triplets = []
     n = len(nums)
