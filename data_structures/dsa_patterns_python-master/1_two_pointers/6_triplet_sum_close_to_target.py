@@ -1,6 +1,6 @@
+# LeetCode: 16 - 3Sum Closest
 
-
-# O(n*log(n)) + O(n**2) = O(n**2) time | space: O(n) - for sorting
+# Time: O(n^2) | Space: O(n) auxiliary for Python sorting
 def triplet_sum_close_to_target(arr, target_sum):
     # question check - array is unsorted
     arr.sort()

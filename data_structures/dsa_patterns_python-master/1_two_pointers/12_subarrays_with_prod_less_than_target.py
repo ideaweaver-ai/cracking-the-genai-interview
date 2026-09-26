@@ -1,6 +1,7 @@
+# LeetCode: 713 - Subarray Product Less Than K (variation: return subarrays instead of their count)
+
 from collections import deque
 # Brute force
-# O(n) * O(N^2) = O(N^3) time | O(N) space for result & current list
 # def find_subarrays(arr, target):
 #     result = []
 #     # TODO: Write your code here
@@ -18,7 +19,7 @@ from collections import deque
 from collections import deque
 
 
-# O(N^3) time ( same complexity as brute force but saves some combinations) | O(n) space ignoring result list
+# Time: O(n^3) worst case | Space: O(n) auxiliary + O(n^3) output (copied subarray elements)
 def find_subarrays(arr, target):
     # Output variable
     result = []

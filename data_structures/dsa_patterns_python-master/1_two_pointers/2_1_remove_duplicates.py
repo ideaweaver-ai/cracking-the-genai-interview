@@ -1,13 +1,14 @@
-# O(N) time | O(1) space
-def remove_duplicates(arr):
+# LeetCode: 26 - Remove Duplicates from Sorted Array
+
+# Time: O(n) | Space: O(1)
+def remove_duplicates(nums):
     # Placeholder to track where next unique num should be placed
     next_unique_num_index = 1
 
-    for i in range(len(arr)):
-        # Imp to have check - i > 0
+    for i in range(1, len(nums)):
         # When we find a unique num, place it at next_unique_index and increment index by 1
-        if i > 0 and arr[i] != arr[i - 1]:
-            arr[next_unique_num_index] = arr[i]
+        if nums[i] != nums[i - 1]:
+            nums[next_unique_num_index] = nums[i]
             next_unique_num_index += 1
     return next_unique_num_index
 

@@ -1,7 +1,7 @@
+# LeetCode: 18 - 4Sum
 
-
-# O(N^3) time | O(N) space sorting (but can be removed by in place sorting)
 # Same as triplets
+# Time: O(n^3) | Space: O(n) sorting + O(k) output; k = number of quadruplets
 def search_quadruplets(arr, target):
     # O/p var
     quadruplets = []
@@ -18,6 +18,7 @@ def search_quadruplets(arr, target):
     return quadruplets
 
 
+# Time: O(n) | Space: O(1) auxiliary + O(k) appended output
 def search_pairs(arr, target, i, j, quadruplets):
     left, right = j + 1, len(arr) - 1
     while left < right:
@@ -39,6 +40,7 @@ def search_pairs(arr, target, i, j, quadruplets):
 
 
 # without using a separate function for search_pairs. Code becomes a little simpler
+# Time: O(n^3) | Space: O(n) sorting + O(k) output; k = number of quadruplets
 def search_quadruplets(arr, target):
     # O/p var
     quadruplets = []
@@ -70,7 +72,7 @@ def search_quadruplets(arr, target):
                     right -= 1
 
 
-# O(n**2) hashmap solution - but does not give unique quadruplets
+# Time: O(n^2 + k), O(n^4) worst case | Space: O(n^2) hash map + O(k) output
 def search_quadruplets(arr, target):
   quadruplets = []
   pair_sum_map = {}

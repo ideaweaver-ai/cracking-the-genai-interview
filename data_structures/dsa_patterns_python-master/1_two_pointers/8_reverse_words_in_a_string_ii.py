@@ -1,9 +1,10 @@
 # LeetCode: 186 - Reverse Words in a String II
-# Time: O(n) | Space: O(1)
+
 from typing import List
 
 
 class Solution:
+    # Time: O(k) | Space: O(1); k = length of the segment being reversed
     def reverseWord(self, s: List[str], left: int, right: int) -> None:
         if left == right:
             return
@@ -13,6 +14,7 @@ class Solution:
             left += 1
             right -= 1
 
+    # Time: O(n) | Space: O(1)
     def reverseWords(self, s: List[str]) -> None:
         """Do not return anything, modify s in-place instead."""
         if len(s) == 0:

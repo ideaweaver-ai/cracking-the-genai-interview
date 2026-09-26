@@ -1,6 +1,6 @@
-# O(N) time | O(1) space
+# LeetCode: 27 - Remove Element
 
-
+# Time: O(n) | Space: O(1)
 def remove_element(arr, key):
     next_non_key_index = 0
     for i in range(len(arr)):

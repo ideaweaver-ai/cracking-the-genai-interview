@@ -1,5 +1,6 @@
+# LeetCode: 259 - 3Sum Smaller (variation: return triplets instead of their count)
 
-# Worst case O(N^3) time because of inner for loop | O(N) space for sorting
+# Time: O(n^2 + k), O(n^3) worst case | Space: O(n) sorting + O(k) output
 def triplet_with_smaller_sum(arr, target):
     arr.sort()
     triplets = []

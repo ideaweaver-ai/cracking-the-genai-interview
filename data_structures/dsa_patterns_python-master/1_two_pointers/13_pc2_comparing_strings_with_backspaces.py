@@ -1,4 +1,6 @@
-# Time: O(N+M), N-length of string1, M-length of string2; Space: O(1) space
+# LeetCode: 844 - Backspace String Compare
+
+# Time: O(n + m) | Space: O(1); n and m are the two string lengths
 def backspace_compare(str1, str2):
     p1, p2 = len(str1) - 1, len(str2) - 1
     while p1 >= 0 and p2 >= 0:
@@ -24,6 +26,7 @@ def backspace_compare(str1, str2):
     return True
 
 
+# Time: O(n) worst case per call | Space: O(1); n = string length
 def next_non_backspace_char(str_, i):
     """Returns the index of next non backspace char """
     num_backspaces = 0

@@ -1,5 +1,6 @@
+# LeetCode: 31 - Next Permutation
+
 # Copyright © 2020 way2FAANG
-# LeetCode: 11
 # Level: Medium
 
 from typing import List

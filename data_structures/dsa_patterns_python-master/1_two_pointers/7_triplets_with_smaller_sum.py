@@ -1,3 +1,5 @@
+# LeetCode: 259 - 3Sum Smaller
+
 # # O(N^3) time | O(1) space
 # def triplet_with_smaller_sum(arr, target):
 #     count = 0
@@ -9,7 +11,7 @@
 #     return count
 
 
-# O(n**2) time | O(n) space for sorting
+# Time: O(n^2) | Space: O(n) auxiliary for Python sorting
 def triplet_with_smaller_sum(arr, target):
     count = 0
     arr.sort()
