@@ -1,5 +1,7 @@
 # Crack the GenAI Interview
 
+![Crack the GenAI Interview](assets/hero.png)
+
 **A 90-day intensive for DevOps, SRE, Platform & Forward-Deployed Engineers.**
 
 Built for engineers whose infrastructure work now meets Generative AI, LLMs, Python, system design, automation, and AI agents. This is a hands-on program for people who already run production systems and need to interview, design, and operate where that work and GenAI overlap.
