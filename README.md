@@ -1,6 +1,6 @@
 # Crack the GenAI Interview
 
-![Crack the GenAI Interview](assets/hero.png)
+![Crack the GenAI Interview](assets/hero.jpg)
 
 **A 90-day intensive for DevOps, SRE, Platform & Forward-Deployed Engineers.**
 
