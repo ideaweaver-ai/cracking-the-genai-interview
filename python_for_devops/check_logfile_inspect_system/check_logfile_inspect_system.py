@@ -1,16 +1,17 @@
-from pathlib import Path
+import os
 import subprocess
 
-log_file = Path("/var/log/myapp/app.log")
+log_file = "/var/log/myapp/app.log"
 
-if not log_file.exists():
+if not os.path.exists(log_file):
     print("Log file does not exist")
 
-elif not log_file.is_file():
+elif not os.path.isfile(log_file):
     print("Path exists, but it is not a file")
 
 else:
-    size_mb = log_file.stat().st_size / (1024 * 1024)
+    size = os.path.getsize(log_file)
+    size_mb = size / (1024 * 1024)
 
     print(f"Log file size: {size_mb:.2f} MB")
 
