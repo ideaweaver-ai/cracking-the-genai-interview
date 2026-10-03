@@ -13,5 +13,5 @@ ec2 = boto3.resource('ec2')
 vol_status={"Name":"status","Values":["available"]}
 for volume in ec2.volumes.filter(Filters=[vol_status]):
     print(f"volume {volume.id} is available")
-    volume.delete()
-    print(f"Deleted volume {volume.id}")
+    #volume.delete()
+    #print(f"Deleted volume {volume.id}")
