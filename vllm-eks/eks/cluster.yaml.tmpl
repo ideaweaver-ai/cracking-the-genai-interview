@@ -1,0 +1,44 @@
+# Rendered by scripts/create-cluster.sh; placeholders are __UPPER_CASE__.
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: __CLUSTER_NAME__
+  region: __REGION__
+  version: "1.35"
+  tags:
+    project: vllm
+
+availabilityZones: [__AZS__]
+
+iam:
+  withOIDC: true
+
+addons:
+  - name: vpc-cni
+  - name: coredns
+  - name: kube-proxy
+  - name: eks-pod-identity-agent
+
+managedNodeGroups:
+  - name: __NODEGROUP_NAME__
+    instanceType: __INSTANCE_TYPE__
+    amiFamily: AmazonLinux2023
+    desiredCapacity: __NODES__
+    minSize: __NODES__
+    maxSize: __NODES__
+    # vLLM images are ~10 GB; leave room for the image cache and model weights.
+    volumeSize: 100
+    volumeType: gp3
+    privateNetworking: true
+    labels:
+      workload: vllm
+      accelerator: __ACCELERATOR__
+    tags:
+      project: vllm
+    iam:
+      attachPolicyARNs:
+        - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+        - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore

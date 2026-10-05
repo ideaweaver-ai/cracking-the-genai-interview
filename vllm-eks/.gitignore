@@ -1,0 +1,3 @@
+eks/generated/
+# The repo root ignores lib/ (Python template); these scripts need theirs.
+!scripts/lib/

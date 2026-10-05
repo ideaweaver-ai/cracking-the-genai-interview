@@ -28,6 +28,7 @@ DevOps, SRE, platform, and forward-deployed engineers who want a course aimed at
 | [`data_structures/dsa_patterns_python-master/1_two_pointers`](data_structures/dsa_patterns_python-master/1_two_pointers) | Two-pointer interview problems, with local solutions mapped to LeetCode. |
 | [`linux_performance_debugging`](linux_performance_debugging) | Scripts that inspect CPU, memory, disk I/O, and network for a running process. |
 | [`kubernetes-genai`](kubernetes-genai) | k3s setup scripts and sample GPU pod manifests. |
+| [`vllm-eks`](vllm-eks) | Scripts that create an EKS cluster (GPU nodes with a CPU fallback), deploy vLLM, serve a Qwen3 model, and test it. |
 | [`token_count_cost`](token_count_cost) | A script that calls a model API and estimates input and output token cost. |
 
 ## License
