@@ -8,9 +8,29 @@ The cluster runs on **g4dn.xlarge** GPU nodes (NVIDIA T4) when your account can 
 falls back to **t3.large** CPU nodes when it can't. The later scripts detect which kind of node
 the cluster has and configure vLLM to match.
 
+## Architecture
+
+![vLLM on Amazon EKS architecture](docs/architecture.svg)
+
+- **Network:** the two nodes run in private subnets of a VPC that spans three availability
+  zones. They reach Docker Hub (vLLM images) and Hugging Face (model weights) only through a
+  NAT gateway, and nothing is exposed to the internet.
+- **Serving:** each node runs one vLLM pod behind the `vllm-qwen3` ClusterIP Service on port
+  8000. On GPU nodes, each pod gets the node's one T4 GPU.
+- **Requests** (orange): your client reaches the Service through `kubectl port-forward` and
+  the EKS API. From inside the cluster, use `vllm-qwen3.vllm.svc.cluster.local:8000`.
+- **Management** (purple): the scripts call the EKS API with kubectl, and the AWS APIs with eksctl
+  and the AWS CLI for quota checks and CloudFormation stacks.
+- **Numbered badges** match the scripts in the [step-by-step setup](#step-by-step-setup) and
+  mark the part of the system each one creates or uses.
+
+The placement of nodes across zones, and of system pods across nodes, can differ between runs.
+A PNG version for slides is at [`docs/architecture.png`](docs/architecture.png).
+
 ## Layout
 
 ```
+docs/architecture.svg        architecture diagram (PNG version alongside)
 eks/cluster.yaml.tmpl        eksctl ClusterConfig template (rendered into eks/generated/)
 scripts/
   lib/common.sh              shared settings: cluster, region, model, vLLM version
