@@ -1,0 +1,356 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="1110" viewBox="0 0 1680 1110" role="img" aria-labelledby="title desc">
+  <title id="title">vLLM on Amazon EKS architecture</title>
+  <desc id="desc">An operator workstation runs scripts that create an EKS cluster in us-west-2. The VPC spans three availability zones with public and private subnets. Two managed nodes in private subnets each run one vLLM pod behind a ClusterIP Service. Nodes pull the vLLM image from Docker Hub and model weights from Hugging Face through a NAT gateway.</desc>
+  <defs>
+    <style>
+      text { font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; }
+      :where(text:not([fill])) { fill: #16191F; }
+      .mono { font-family: SFMono-Regular, Menlo, Consolas, monospace; }
+      .h1 { font-size: 26px; font-weight: 600; }
+      .sub { font-size: 14px; fill: #545B64; }
+      .t { font-size: 14px; font-weight: 600; }
+      .ts { font-size: 12.5px; font-weight: 600; }
+      .b { font-size: 11.5px; fill: #545B64; }
+      .s { font-size: 10.5px; fill: #545B64; }
+      .lbl { font-size: 12px; font-weight: 600; }
+      .cap { font-size: 10.5px; font-weight: 600; fill: #687078; letter-spacing: 0.6px; }
+      .icon { font-size: 10px; font-weight: 700; fill: #FFFFFF; }
+      .badge { font-size: 11px; font-weight: 700; fill: #FFFFFF; }
+      .halo { stroke: #FFFFFF; stroke-width: 7; fill: none; }
+      .req { stroke: #E8590C; stroke-width: 2.5; fill: none; }
+      .mgmt { stroke: #7048E8; stroke-width: 2; stroke-dasharray: 7 5; fill: none; }
+      .egress { stroke: #868E96; stroke-width: 2; fill: none; }
+    </style>
+    <marker id="a-req" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#E8590C"/></marker>
+    <marker id="a-mgmt" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#7048E8"/></marker>
+    <marker id="a-egress" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#868E96"/></marker>
+  </defs>
+
+  <rect width="1680" height="1110" fill="#FFFFFF"/>
+
+  <!-- Title -->
+  <text x="40" y="50" class="h1">vLLM on Amazon EKS</text>
+  <text x="40" y="76" class="sub">Serving andresnowak/Qwen3-0.6B-instruction-finetuned through vLLM's OpenAI-compatible API</text>
+
+  <!-- ============ Operator workstation ============ -->
+  <rect x="40" y="110" width="270" height="820" rx="10" fill="#F8F9FA" stroke="#CED4DA"/>
+  <rect x="58" y="126" width="34" height="24" rx="3" fill="none" stroke="#495057" stroke-width="2"/>
+  <path d="M52,154 H98" stroke="#495057" stroke-width="3" stroke-linecap="round"/>
+  <text x="106" y="138" class="t">Operator workstation</text>
+  <text x="106" y="155" class="b">macOS or Linux</text>
+
+  <text x="58" y="190" class="cap">TOOLS</text>
+  <g class="mono" font-size="11">
+    <rect x="58" y="198" width="44" height="22" rx="11" fill="#FFFFFF" stroke="#ADB5BD"/><text x="80" y="213" text-anchor="middle" class="mono" font-size="11">aws</text>
+    <rect x="108" y="198" width="58" height="22" rx="11" fill="#FFFFFF" stroke="#ADB5BD"/><text x="137" y="213" text-anchor="middle" class="mono" font-size="11">eksctl</text>
+    <rect x="172" y="198" width="64" height="22" rx="11" fill="#FFFFFF" stroke="#ADB5BD"/><text x="204" y="213" text-anchor="middle" class="mono" font-size="11">kubectl</text>
+    <rect x="242" y="198" width="34" height="22" rx="11" fill="#FFFFFF" stroke="#ADB5BD"/><text x="259" y="213" text-anchor="middle" class="mono" font-size="11">jq</text>
+  </g>
+
+  <text x="58" y="256" class="cap">SCRIPTS, IN ORDER</text>
+  <g>
+    <circle cx="70" cy="282" r="11" fill="#232F3E"/><text x="70" y="286" text-anchor="middle" class="badge">0</text>
+    <text x="90" y="280" class="mono" font-size="12" font-weight="600">00-check-prereqs.sh</text>
+    <text x="90" y="295" class="s">install tools, check AWS access</text>
+
+    <circle cx="70" cy="324" r="11" fill="#232F3E"/><text x="70" y="328" text-anchor="middle" class="badge">1</text>
+    <text x="90" y="322" class="mono" font-size="12" font-weight="600">create-cluster.sh</text>
+    <text x="90" y="337" class="s">VPC, EKS, node group</text>
+
+    <circle cx="70" cy="366" r="11" fill="#232F3E"/><text x="70" y="370" text-anchor="middle" class="badge">2</text>
+    <text x="90" y="364" class="mono" font-size="12" font-weight="600">00-check-prereqs.sh</text>
+    <text x="90" y="379" class="s">verify cluster and nodes</text>
+
+    <circle cx="70" cy="408" r="11" fill="#232F3E"/><text x="70" y="412" text-anchor="middle" class="badge">3</text>
+    <text x="90" y="406" class="mono" font-size="12" font-weight="600">01-install-vllm.sh</text>
+    <text x="90" y="421" class="s">pre-pull and verify vLLM image</text>
+
+    <circle cx="70" cy="450" r="11" fill="#232F3E"/><text x="70" y="454" text-anchor="middle" class="badge">4</text>
+    <text x="90" y="448" class="mono" font-size="12" font-weight="600">02-run-model.sh</text>
+    <text x="90" y="463" class="s">Deployment, Service, chat template</text>
+
+    <circle cx="70" cy="492" r="11" fill="#232F3E"/><text x="70" y="496" text-anchor="middle" class="badge">5</text>
+    <text x="90" y="490" class="mono" font-size="12" font-weight="600">03-test-model.sh</text>
+    <text x="90" y="505" class="s">7 API checks via port-forward</text>
+
+    <circle cx="70" cy="534" r="11" fill="#C92A2A"/><text x="70" y="538" text-anchor="middle" class="badge">6</text>
+    <text x="90" y="532" class="mono" font-size="12" font-weight="600">delete-cluster.sh</text>
+    <text x="90" y="547" class="s">tear everything down</text>
+  </g>
+
+  <!-- API client -->
+  <rect x="58" y="604" width="234" height="96" rx="8" fill="#FFF4E6" stroke="#E8590C"/>
+  <text x="74" y="628" class="ts">API client</text>
+  <text x="74" y="646" class="b">curl, OpenAI SDK, test script</text>
+  <text x="74" y="668" class="mono" font-size="11">localhost:8000/v1</text>
+  <text x="74" y="686" class="s">model name: qwen3-0.6b</text>
+
+  <text x="58" y="740" class="cap">KUBECONFIG</text>
+  <text x="58" y="758" class="b">eksctl writes the context;</text>
+  <text x="58" y="774" class="b">every script uses kubectl</text>
+  <text x="58" y="790" class="b">against the EKS API.</text>
+
+  <!-- ============ AWS Cloud ============ -->
+  <rect x="350" y="110" width="1000" height="820" fill="none" stroke="#232F3E" stroke-width="1.5"/>
+  <rect x="350" y="110" width="108" height="26" fill="#232F3E"/>
+  <text x="362" y="128" font-size="12" font-weight="600" fill="#FFFFFF">AWS Cloud</text>
+
+  <!-- Region -->
+  <rect x="370" y="152" width="960" height="760" fill="none" stroke="#147EBA" stroke-width="1.5" stroke-dasharray="6 4"/>
+  <text x="384" y="174" class="lbl" fill="#147EBA">Region us-west-2</text>
+
+  <!-- EKS control plane -->
+  <rect x="395" y="190" width="440" height="102" rx="8" fill="#FFF8F0" stroke="#ED7100"/>
+  <rect x="410" y="206" width="40" height="40" rx="6" fill="#ED7100"/>
+  <text x="430" y="230" text-anchor="middle" class="icon">EKS</text>
+  <text x="464" y="214" class="t">Amazon EKS control plane</text>
+  <text x="464" y="233" class="b">Kubernetes 1.35, AWS-managed, IAM OIDC provider</text>
+  <text x="464" y="252" class="b">Stores the Deployment, Service and ConfigMaps</text>
+  <text x="464" y="270" class="b">(vllm-install, chat template) in namespace vllm</text>
+
+  <!-- AWS APIs -->
+  <rect x="860" y="190" width="445" height="102" rx="8" fill="#FDF0F6" stroke="#E7157B"/>
+  <rect x="875" y="206" width="40" height="40" rx="6" fill="#E7157B"/>
+  <text x="895" y="230" text-anchor="middle" class="icon">API</text>
+  <text x="929" y="214" class="t">AWS service APIs</text>
+  <text x="929" y="233" class="b">CloudFormation stacks for cluster, node group, IAM roles</text>
+  <text x="929" y="252" class="b">EC2: instance type offered in each availability zone</text>
+  <text x="929" y="270" class="b">Service Quotas: G-instance vCPU limit (8 needed for GPU)</text>
+  <circle cx="1293" cy="190" r="11" fill="#232F3E"/><text x="1293" y="194" text-anchor="middle" class="badge">1</text>
+
+  <!-- VPC -->
+  <rect x="395" y="320" width="910" height="570" fill="none" stroke="#8C4FFF" stroke-width="1.5"/>
+  <rect x="395" y="320" width="26" height="22" fill="#8C4FFF"/>
+  <text x="408" y="335" text-anchor="middle" font-size="9" font-weight="700" fill="#FFFFFF">VPC</text>
+  <text x="430" y="336" class="lbl" fill="#8C4FFF">VPC 192.168.0.0/16</text>
+
+  <!-- Availability zones -->
+  <g fill="none" stroke="#147EBA" stroke-dasharray="4 4">
+    <rect x="415" y="352" width="280" height="525"/>
+    <rect x="710" y="352" width="280" height="525"/>
+    <rect x="1005" y="352" width="280" height="525"/>
+  </g>
+  <text x="427" y="374" class="lbl" fill="#147EBA">us-west-2a</text>
+  <text x="722" y="374" class="lbl" fill="#147EBA">us-west-2b</text>
+  <text x="1017" y="374" class="lbl" fill="#147EBA">us-west-2c</text>
+
+  <!-- Public subnets -->
+  <g fill="#F2F8EC" stroke="#7AA116">
+    <rect x="425" y="392" width="260" height="90"/>
+    <rect x="720" y="392" width="260" height="90"/>
+    <rect x="1015" y="392" width="260" height="90"/>
+  </g>
+  <text x="435" y="410" class="s" font-weight="600" fill="#5C7A11">Public subnet 192.168.0.0/19</text>
+  <text x="730" y="410" class="s" font-weight="600" fill="#5C7A11">Public subnet 192.168.32.0/19</text>
+  <text x="1025" y="410" class="s" font-weight="600" fill="#5C7A11">Public subnet 192.168.64.0/19</text>
+
+  <!-- NAT gateway -->
+  <rect x="435" y="420" width="120" height="52" rx="6" fill="#FFFFFF" stroke="#8C4FFF"/>
+  <rect x="443" y="428" width="36" height="36" rx="5" fill="#8C4FFF"/>
+  <text x="461" y="450" text-anchor="middle" class="icon">NAT</text>
+  <text x="486" y="443" font-size="11.5" font-weight="600">NAT</text>
+  <text x="486" y="459" font-size="11.5" font-weight="600">gateway</text>
+
+  <!-- Private subnets -->
+  <g fill="#EEF6FB" stroke="#147EBA">
+    <rect x="425" y="502" width="260" height="365"/>
+    <rect x="720" y="502" width="260" height="365"/>
+    <rect x="1015" y="502" width="260" height="365"/>
+  </g>
+  <text x="435" y="858" class="s" font-weight="600" fill="#147EBA">Private subnet 192.168.96.0/19</text>
+  <text x="730" y="858" class="s" font-weight="600" fill="#147EBA">Private subnet 192.168.128.0/19</text>
+  <text x="1025" y="858" class="s" font-weight="600" fill="#147EBA">Private subnet 192.168.160.0/19</text>
+
+  <!-- Service -->
+  <rect x="500" y="522" width="430" height="48" rx="8" fill="#EBF0FC" stroke="#326CE5" stroke-width="1.5"/>
+  <circle cx="528" cy="546" r="12" fill="#326CE5"/>
+  <text x="528" y="550" text-anchor="middle" class="icon">svc</text>
+  <text x="548" y="542" class="ts">Service vllm-qwen3, ClusterIP :8000</text>
+  <text x="548" y="559" class="s">namespace vllm, one pod per node (anti-affinity)</text>
+  <circle cx="930" cy="522" r="11" fill="#232F3E"/><text x="930" y="526" text-anchor="middle" class="badge">4</text>
+
+  <!-- Node template: node 1 -->
+  <g>
+    <rect x="430" y="605" width="250" height="232" rx="8" fill="#FFFFFF" stroke="#ED7100"/>
+    <rect x="442" y="616" width="30" height="30" rx="4" fill="#ED7100"/>
+    <text x="457" y="635" text-anchor="middle" font-size="9" font-weight="700" fill="#FFFFFF">EC2</text>
+    <text x="480" y="628" class="ts">Node 1</text>
+    <text x="480" y="643" class="s">g4dn.xlarge</text>
+
+    <rect x="442" y="655" width="226" height="96" rx="6" fill="#F5F8FE" stroke="#326CE5"/>
+    <text x="454" y="674" class="ts">Pod vllm-qwen3</text>
+    <text x="454" y="691" class="s">vllm serve, port 8000, max 2048 tokens</text>
+    <rect x="454" y="702" width="62" height="20" rx="10" fill="#FFFFFF" stroke="#ADB5BD"/><text x="485" y="716" text-anchor="middle" class="mono" font-size="9.5">/dev/shm</text>
+    <rect x="522" y="702" width="64" height="20" rx="10" fill="#FFFFFF" stroke="#ADB5BD"/><text x="554" y="716" text-anchor="middle" class="mono" font-size="9.5">HF cache</text>
+    <rect x="592" y="702" width="66" height="20" rx="10" fill="#FFFFFF" stroke="#ADB5BD"/><text x="625" y="716" text-anchor="middle" class="mono" font-size="9.5">template</text>
+    <text x="454" y="740" class="s">float16 on GPU, bfloat16 on CPU</text>
+
+    <rect x="442" y="760" width="226" height="26" rx="5" fill="#F1F8E6" stroke="#76B900"/>
+    <text x="555" y="777" text-anchor="middle" font-size="11" font-weight="600" fill="#3F6300">NVIDIA T4, 16 GB, nvidia.com/gpu: 1</text>
+
+    <text x="442" y="806" class="s">System pods: aws-node, kube-proxy,</text>
+    <text x="442" y="821" class="s">NVIDIA device plugin, CoreDNS</text>
+  </g>
+
+  <!-- Node 2 -->
+  <g>
+    <rect x="725" y="605" width="250" height="232" rx="8" fill="#FFFFFF" stroke="#ED7100"/>
+    <rect x="737" y="616" width="30" height="30" rx="4" fill="#ED7100"/>
+    <text x="752" y="635" text-anchor="middle" font-size="9" font-weight="700" fill="#FFFFFF">EC2</text>
+    <text x="775" y="628" class="ts">Node 2</text>
+    <text x="775" y="643" class="s">g4dn.xlarge</text>
+
+    <rect x="737" y="655" width="226" height="96" rx="6" fill="#F5F8FE" stroke="#326CE5"/>
+    <text x="749" y="674" class="ts">Pod vllm-qwen3</text>
+    <text x="749" y="691" class="s">vllm serve, port 8000, max 2048 tokens</text>
+    <rect x="749" y="702" width="62" height="20" rx="10" fill="#FFFFFF" stroke="#ADB5BD"/><text x="780" y="716" text-anchor="middle" class="mono" font-size="9.5">/dev/shm</text>
+    <rect x="817" y="702" width="64" height="20" rx="10" fill="#FFFFFF" stroke="#ADB5BD"/><text x="849" y="716" text-anchor="middle" class="mono" font-size="9.5">HF cache</text>
+    <rect x="887" y="702" width="66" height="20" rx="10" fill="#FFFFFF" stroke="#ADB5BD"/><text x="920" y="716" text-anchor="middle" class="mono" font-size="9.5">template</text>
+    <text x="749" y="740" class="s">float16 on GPU, bfloat16 on CPU</text>
+
+    <rect x="737" y="760" width="226" height="26" rx="5" fill="#F1F8E6" stroke="#76B900"/>
+    <text x="850" y="777" text-anchor="middle" font-size="11" font-weight="600" fill="#3F6300">NVIDIA T4, 16 GB, nvidia.com/gpu: 1</text>
+
+    <text x="737" y="806" class="s">System pods: aws-node, kube-proxy,</text>
+    <text x="737" y="821" class="s">NVIDIA device plugin, metrics-server</text>
+  </g>
+
+  <!-- AZ c: no node -->
+  <rect x="1030" y="605" width="230" height="232" rx="8" fill="none" stroke="#9AB8CC" stroke-dasharray="5 4"/>
+  <text x="1145" y="712" text-anchor="middle" class="ts" fill="#687078">No node in this zone</text>
+  <text x="1145" y="731" text-anchor="middle" class="s">Subnet ready if the node</text>
+  <text x="1145" y="746" text-anchor="middle" class="s">group scales out</text>
+
+  <!-- Internet gateway on VPC edge -->
+  <rect x="1288" y="430" width="34" height="34" rx="5" fill="#8C4FFF"/>
+  <text x="1305" y="451" text-anchor="middle" class="icon">IGW</text>
+
+  <!-- ============ Right column ============ -->
+  <text x="1390" y="140" class="cap">LEGEND</text>
+  <path d="M1390,166 H1440" class="req" marker-end="url(#a-req)"/>
+  <text x="1450" y="170" class="b">Inference requests</text>
+  <path d="M1390,192 H1440" class="mgmt" marker-end="url(#a-mgmt)"/>
+  <text x="1450" y="196" class="b">Cluster management</text>
+  <path d="M1390,218 H1440" class="egress" marker-end="url(#a-egress)"/>
+  <text x="1450" y="222" class="b">Outbound downloads</text>
+  <circle cx="1401" cy="246" r="11" fill="#232F3E"/><text x="1401" y="250" text-anchor="middle" class="badge">n</text>
+  <text x="1420" y="250" class="b">Script that creates or uses it</text>
+
+  <text x="1390" y="300" class="cap">PUBLIC INTERNET</text>
+  <rect x="1390" y="320" width="250" height="110" rx="8" fill="#EEF4FE" stroke="#1D63ED"/>
+  <rect x="1404" y="334" width="34" height="34" rx="5" fill="#1D63ED"/>
+  <text x="1421" y="355" text-anchor="middle" class="icon">HUB</text>
+  <text x="1448" y="349" class="ts">Docker Hub</text>
+  <text x="1448" y="364" class="s">vLLM container images</text>
+  <text x="1404" y="390" class="mono" font-size="10">vllm/vllm-openai:v0.30.0</text>
+  <text x="1404" y="406" class="mono" font-size="10">vllm/vllm-openai-cpu:</text>
+  <text x="1404" y="420" class="mono" font-size="10">  v0.30.0-x86_64</text>
+  <circle cx="1640" cy="320" r="11" fill="#232F3E"/><text x="1640" y="324" text-anchor="middle" class="badge">3</text>
+
+  <rect x="1390" y="455" width="250" height="110" rx="8" fill="#FFFBEA" stroke="#E0A800"/>
+  <rect x="1404" y="469" width="34" height="34" rx="5" fill="#FFD21E"/>
+  <text x="1421" y="490" text-anchor="middle" font-size="10" font-weight="700" fill="#16191F">HF</text>
+  <text x="1448" y="484" class="ts">Hugging Face Hub</text>
+  <text x="1448" y="499" class="s">model weights, no token needed</text>
+  <text x="1404" y="525" class="mono" font-size="10">andresnowak/Qwen3-0.6B-</text>
+  <text x="1404" y="539" class="mono" font-size="10">  instruction-finetuned</text>
+  <text x="1404" y="555" class="s">model.safetensors, 1.1 GiB</text>
+
+  <text x="1390" y="610" class="cap">NODE OPTIONS</text>
+  <rect x="1390" y="622" width="250" height="140" rx="8" fill="#FFFFFF" stroke="#76B900"/>
+  <text x="1404" y="644" class="ts">GPU (preferred)</text>
+  <text x="1404" y="662" class="s">2 x g4dn.xlarge, NVIDIA T4 16 GB</text>
+  <text x="1404" y="678" class="s">float16, image vllm/vllm-openai</text>
+  <text x="1404" y="694" class="s">needs 8 vCPUs of G-instance quota</text>
+  <path d="M1404,708 H1626" stroke="#E9ECEF"/>
+  <text x="1404" y="726" class="ts">CPU (fallback)</text>
+  <text x="1404" y="744" class="s">2 x t3.large, 2 vCPU, 8 GiB each</text>
+  <text x="1404" y="758" class="s">bfloat16, eager mode, 1 GiB KV cache</text>
+
+  <rect x="1390" y="776" width="250" height="88" rx="8" fill="#F8F9FA" stroke="#CED4DA"/>
+  <text x="1404" y="798" class="ts">Fallback triggers</text>
+  <text x="1404" y="816" class="s">GPU type not offered in every zone,</text>
+  <text x="1404" y="831" class="s">not enough G-instance quota, or the</text>
+  <text x="1404" y="846" class="s">GPU node group fails to create</text>
+
+  <!-- ============ Connectors ============ -->
+  <!-- Workstation to AWS APIs (management) -->
+  <path d="M310,165 H330 V142 H1082 V188" class="halo"/>
+  <path d="M310,165 H330 V142 H1082 V188" class="mgmt" marker-end="url(#a-mgmt)"/>
+  <rect x="610" y="132" width="296" height="18" fill="#FFFFFF"/>
+  <text x="758" y="145" text-anchor="middle" class="s">quota and capacity checks, CloudFormation via eksctl</text>
+
+  <!-- Workstation to EKS API (management) -->
+  <path d="M310,226 H393" class="mgmt" marker-end="url(#a-mgmt)"/>
+  <text x="372" y="219" text-anchor="middle" class="s">kubectl</text>
+
+  <!-- Egress: nodes to NAT, NAT to IGW, IGW to internet -->
+  <path d="M455,605 V492 H495 V474" class="egress" marker-end="url(#a-egress)"/>
+  <path d="M950,605 V492 H495" class="egress"/>
+  <path d="M555,447 H1286" class="egress" marker-end="url(#a-egress)"/>
+  <path d="M1322,447 H1362 V375 H1388" class="egress" marker-end="url(#a-egress)"/>
+  <path d="M1362,447 V510 H1388" class="egress" marker-end="url(#a-egress)"/>
+  <rect x="1060" y="434" width="190" height="8" fill="#F2F8EC"/>
+  <text x="1155" y="440" text-anchor="middle" class="s">image and weight downloads</text>
+
+  <!-- Request path, drawn last so it sits above the egress lines -->
+  <path d="M292,652 H338 V262 H393" class="halo"/>
+  <path d="M292,652 H338 V262 H393" class="req" marker-end="url(#a-req)"/>
+  <circle cx="338" cy="470" r="11" fill="#232F3E"/><text x="338" y="474" text-anchor="middle" class="badge">5</text>
+  <text x="324" y="565" class="s" transform="rotate(-90 324 565)" text-anchor="middle">kubectl port-forward</text>
+
+  <path d="M645,292 V520" class="halo"/>
+  <path d="M645,292 V520" class="req" marker-end="url(#a-req)"/>
+  <path d="M615,570 V653" class="halo"/>
+  <path d="M615,570 V653" class="req" marker-end="url(#a-req)"/>
+  <path d="M910,570 V653" class="halo"/>
+  <path d="M910,570 V653" class="req" marker-end="url(#a-req)"/>
+
+  <!-- ============ Workflow strip ============ -->
+  <text x="40" y="972" class="t">Setup workflow</text>
+  <text x="170" y="972" class="b">Run from the vllm-eks/ directory. Each step checks its own result and stops on failure.</text>
+  <g>
+    <polygon points="40,990 250,990 268,1030 250,1070 40,1070" fill="#F1F3F5" stroke="#CED4DA"/>
+    <polygon points="262,990 472,990 490,1030 472,1070 262,1070 280,1030" fill="#F1F3F5" stroke="#CED4DA"/>
+    <polygon points="484,990 694,990 712,1030 694,1070 484,1070 502,1030" fill="#F1F3F5" stroke="#CED4DA"/>
+    <polygon points="706,990 916,990 934,1030 916,1070 706,1070 724,1030" fill="#F1F3F5" stroke="#CED4DA"/>
+    <polygon points="928,990 1138,990 1156,1030 1138,1070 928,1070 946,1030" fill="#F1F3F5" stroke="#CED4DA"/>
+    <polygon points="1150,990 1360,990 1378,1030 1360,1070 1150,1070 1168,1030" fill="#F1F3F5" stroke="#CED4DA"/>
+    <polygon points="1372,990 1640,990 1640,1070 1372,1070 1390,1030" fill="#FFF0F0" stroke="#E599A0"/>
+
+    <circle cx="66" cy="1012" r="11" fill="#232F3E"/><text x="66" y="1016" text-anchor="middle" class="badge">0</text>
+    <text x="84" y="1016" class="mono" font-size="11.5" font-weight="600">00-check-prereqs.sh</text>
+    <text x="56" y="1038" class="s">--skip-cluster: install tools,</text>
+    <text x="56" y="1053" class="s">check AWS credentials</text>
+
+    <circle cx="300" cy="1012" r="11" fill="#232F3E"/><text x="300" y="1016" text-anchor="middle" class="badge">1</text>
+    <text x="318" y="1016" class="mono" font-size="11.5" font-weight="600">create-cluster.sh</text>
+    <text x="290" y="1038" class="s">g4dn.xlarge if quota and</text>
+    <text x="290" y="1053" class="s">capacity allow, else t3.large</text>
+
+    <circle cx="522" cy="1012" r="11" fill="#232F3E"/><text x="522" y="1016" text-anchor="middle" class="badge">2</text>
+    <text x="540" y="1016" class="mono" font-size="11.5" font-weight="600">00-check-prereqs.sh</text>
+    <text x="512" y="1038" class="s">cluster ACTIVE, nodes Ready,</text>
+    <text x="512" y="1053" class="s">GPU or CPU mode detected</text>
+
+    <circle cx="744" cy="1012" r="11" fill="#232F3E"/><text x="744" y="1016" text-anchor="middle" class="badge">3</text>
+    <text x="762" y="1016" class="mono" font-size="11.5" font-weight="600">01-install-vllm.sh</text>
+    <text x="734" y="1038" class="s">pull image on every node,</text>
+    <text x="734" y="1053" class="s">verify import vllm</text>
+
+    <circle cx="966" cy="1012" r="11" fill="#232F3E"/><text x="966" y="1016" text-anchor="middle" class="badge">4</text>
+    <text x="984" y="1016" class="mono" font-size="11.5" font-weight="600">02-run-model.sh</text>
+    <text x="956" y="1038" class="s">Deployment and Service,</text>
+    <text x="956" y="1053" class="s">wait until /health is ready</text>
+
+    <circle cx="1188" cy="1012" r="11" fill="#232F3E"/><text x="1188" y="1016" text-anchor="middle" class="badge">5</text>
+    <text x="1206" y="1016" class="mono" font-size="11.5" font-weight="600">03-test-model.sh</text>
+    <text x="1178" y="1038" class="s">health, models, completion,</text>
+    <text x="1178" y="1053" class="s">chat, streaming, 404</text>
+
+    <circle cx="1410" cy="1012" r="11" fill="#C92A2A"/><text x="1410" y="1016" text-anchor="middle" class="badge">6</text>
+    <text x="1428" y="1016" class="mono" font-size="11.5" font-weight="600">delete-cluster.sh</text>
+    <text x="1400" y="1038" class="s">namespace, cluster, VPC and</text>
+    <text x="1400" y="1053" class="s">stacks; checks nothing is left</text>
+  </g>
+</svg>
