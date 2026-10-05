@@ -22,27 +22,119 @@ scripts/
   delete-cluster.sh          delete the deployment and the cluster
 ```
 
-## Quick start
+## Step-by-step setup
 
 You need an AWS account with credentials configured (`aws configure`) and permission to create
 EKS clusters, VPCs, IAM roles and EC2 instances.
 
-Run all commands from this `vllm-eks/` directory.
+The steps below take about 30–40 minutes in total, most of it spent waiting for AWS.
+
+### Step 0: get the code
 
 ```bash
-./scripts/00-check-prereqs.sh --skip-cluster   # install tools; the cluster doesn't exist yet
-./scripts/create-cluster.sh                    # ~15-20 minutes
-./scripts/00-check-prereqs.sh                  # full check, including the cluster
-./scripts/01-install-vllm.sh                   # ~2 minutes (CPU image), longer for the GPU image
-./scripts/02-run-model.sh                      # ~2-3 minutes until the model is ready
+git clone git@github.com:ideaweaver-ai/cracking-the-genai-interview.git
+cd cracking-the-genai-interview/vllm-eks
+```
+
+Run every command below from this `vllm-eks/` directory.
+
+### Step 1: check prerequisites (about 1 minute)
+
+```bash
+./scripts/00-check-prereqs.sh --skip-cluster
+```
+
+This installs any missing tools and checks your AWS credentials. Use `--skip-cluster` because
+the cluster doesn't exist yet. Every line should say `PASS`.
+
+### Step 2: create the cluster (about 20 minutes)
+
+Preview which instance type the script will choose:
+
+```bash
+DRY_RUN=1 ./scripts/create-cluster.sh
+```
+
+If it logs `g4dn.xlarge is available`, you'll get GPU nodes. If it logs
+`falling back to t3.large`, your G-instance quota is too low and you'll get CPU nodes; see
+[Moving from CPU to GPU nodes](#moving-from-cpu-to-gpu-nodes) to raise it. Then create the
+cluster:
+
+```bash
+./scripts/create-cluster.sh
+```
+
+It ends by listing 2 nodes with their instance type and accelerator (`nvidia-t4` or `none`).
+On GPU nodes, confirm each node exposes a GPU:
+
+```bash
+kubectl get nodes -o custom-columns=NAME:.metadata.name,GPU:.status.allocatable.'nvidia\.com/gpu'
+```
+
+Each node should show `1`. `<none>` means the NVIDIA device plugin isn't running.
+
+### Step 3: full prerequisites check (a few seconds)
+
+```bash
+./scripts/00-check-prereqs.sh
+```
+
+Look for `GPU nodes detected; vLLM will run in GPU mode`. On CPU nodes it warns that vLLM will
+run in CPU mode instead.
+
+### Step 4: install vLLM (about 2–10 minutes)
+
+```bash
+./scripts/01-install-vllm.sh
+```
+
+It logs the mode and image, for example `mode: gpu, image: vllm/vllm-openai:v0.30.0`. The GPU
+image is about 10 GB, so it takes several minutes to pull; the CPU image takes about 2 minutes.
+It finishes with `vLLM 0.30.0 imports successfully on all 2 node(s)`.
+
+### Step 5: run the model (about 2–5 minutes)
+
+```bash
+./scripts/02-run-model.sh
+```
+
+It deploys one replica per node. While it waits, you can watch progress from a second terminal:
+
+```bash
+kubectl get pods -n vllm -w
+kubectl logs -n vllm deploy/vllm-qwen3 -f
+```
+
+### Step 6: test (under a minute)
+
+```bash
 ./scripts/03-test-model.sh
 ```
 
-When you're finished:
+You should see `7 passed, 0 failed`. To try your own prompts, port-forward the Service and use
+the examples in [Using the API](#using-the-api):
 
 ```bash
-./scripts/delete-cluster.sh
+kubectl port-forward -n vllm svc/vllm-qwen3 8000:8000
 ```
+
+### Step 7: clean up
+
+```bash
+./scripts/delete-cluster.sh --dry-run    # see what will be deleted
+./scripts/delete-cluster.sh              # type the cluster name to confirm
+```
+
+The cluster costs money for as long as it runs (see [Performance and cost](#performance-and-cost)),
+so delete it when you're done.
+
+### If a step fails
+
+- **The GPU node group fails** because AWS is out of g4dn capacity: `create-cluster.sh` falls
+  back to t3.large on its own, and the remaining steps adapt.
+- **You want CPU nodes anyway:** run `FORCE_TYPE=t3.large ./scripts/create-cluster.sh`.
+- **A pod crash-loops:** `kubectl logs -n vllm deploy/vllm-qwen3 --previous` shows why it
+  died. See also [Troubleshooting](#troubleshooting).
 
 ## Scripts
 
