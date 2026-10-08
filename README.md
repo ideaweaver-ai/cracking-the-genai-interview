@@ -30,7 +30,7 @@ DevOps, SRE, platform, and forward-deployed engineers who want a course aimed at
 | [`kubernetes-genai`](kubernetes-genai) | k3s setup scripts and sample GPU pod manifests. |
 | [`vllm-eks`](vllm-eks) | Scripts that create an EKS cluster (GPU nodes with a CPU fallback), deploy vLLM, serve a Qwen3 model, and test it. |
 | [`token_count_cost`](token_count_cost) | A script that calls a model API and estimates input and output token cost. |
-| [`bedrock-apig-lambda`](bedrock-apig-lambda) | Console lab: API Gateway → Lambda → Amazon Bedrock Mantle (OpenAI Responses API) Q&A endpoint. |
+| [`bedrock-apig-lambda`](bedrock-apig-lambda) | Console lab: API Gateway → Lambda → Amazon Bedrock Mantle Q&A (`xai.grok-4.6`), with prebuilt `function.zip`. |
 
 ## License
 
