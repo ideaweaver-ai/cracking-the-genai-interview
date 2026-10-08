@@ -1,0 +1,2 @@
+openai>=1.68.0,<2
+aws-bedrock-token-generator>=0.1.0
