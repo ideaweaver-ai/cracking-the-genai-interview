@@ -1,7 +1,7 @@
 .DS_Store
 lambda/package/
-lambda/function.zip
 __pycache__/
 *.pyc
 .venv/
 venv/
+# lambda/function.zip is intentionally committed for easy console upload
