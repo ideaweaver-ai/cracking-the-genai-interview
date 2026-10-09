@@ -1,4 +1,4 @@
-# Bedrock Mantle + Lambda + API Gateway (Console-Only)
+# Bedrock Mantle + Lambda + API Gateway
 
 Ask a question via **API Gateway** → **Lambda** → **Amazon Bedrock Mantle** (OpenAI-compatible **Responses API**).
 
@@ -22,16 +22,28 @@ https://bedrock-mantle.us-west-2.api.aws/openai/v1/responses
         model: xai.grok-4.6
 ```
 
+## Deploy options
+
+| Path | When to use |
+|------|-------------|
+| **[Terraform](#deploy-with-terraform)** (`terraform/`) | Recommended for production-style / repeatable deploys |
+| **[AWS Console](#deploy-with-the-aws-console)** | Learning lab / first-time walkthrough |
+
+Both options deploy the same architecture. Auth on API Gateway is **NONE** (open URL) for this lab — do not treat that as production-ready.
+
 ## Prerequisites
 
 - An AWS account with permission to use Bedrock Mantle, Lambda, API Gateway, and IAM
 - Deploy in **`us-west-2`** (Oregon)
-- Local tools to package deps (optional if you use the prebuilt zip): Python 3.12+, `pip`, `zip` (and optionally `curl` / `jq` for testing)
+- Local tools:
+  - To package deps: Python 3.12+, `pip`, `zip`
+  - For Terraform: Terraform `>= 1.5` and AWS credentials configured
+  - For testing: `curl` (optional `jq`)
 
 **Important:**
 - Putting `requirements.txt` in the Lambda console editor does **not** install packages.
-- Upload `lambda/function.zip` (prebuilt in this repo) **or** rebuild with `./scripts/package-lambda.sh`.
-- On a Mac/Windows laptop, a normal `pip install -t` builds the **wrong OS binaries**. Always use `./scripts/package-lambda.sh` (manylinux wheels for Lambda Python 3.12 / x86_64).
+- Use `lambda/function.zip` (prebuilt) **or** rebuild with `./scripts/package-lambda.sh`.
+- On macOS/Windows, a normal `pip install -t` builds the **wrong OS binaries**. Always use `./scripts/package-lambda.sh` (manylinux wheels for Lambda Python 3.12 / x86_64).
 
 ## Project layout
 
@@ -40,11 +52,59 @@ https://bedrock-mantle.us-west-2.api.aws/openai/v1/responses
 | `lambda/handler.py` | Source for the Lambda function |
 | `lambda/lambda_function.py` | Same code (console default module name) |
 | `lambda/requirements.txt` | `openai` + `aws-bedrock-token-generator` |
-| `lambda/function.zip` | Prebuilt Linux deployment package (upload this in the console) |
+| `lambda/function.zip` | Prebuilt Linux deployment package |
 | `scripts/package-lambda.sh` | Rebuilds `lambda/function.zip` with code + deps |
 | `scripts/test-ask.sh` | Sample curl against your deployed URL |
+| `terraform/` | Terraform for IAM + Lambda + API Gateway |
 
-## 1. Create the Lambda IAM role
+---
+
+## Deploy with Terraform
+
+Creates the IAM role, Lambda function, API Gateway REST API (`POST /ask` + CORS `OPTIONS`), and a stage (default `dev`).
+
+```bash
+# 1. Rebuild the zip if you changed code or requirements
+./scripts/package-lambda.sh
+
+# 2. Apply
+cd terraform
+cp terraform.tfvars.example terraform.tfvars   # optional overrides
+terraform init
+terraform plan
+terraform apply
+
+# 3. Get the invoke URL and test
+terraform output ask_url
+terraform output -raw curl_example | bash
+```
+
+Useful variables in `terraform/terraform.tfvars`:
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `aws_region` | `us-west-2` | Region for all resources |
+| `project_name` | `bedrock-ask` | Name prefix |
+| `model_id` | `xai.grok-4.6` | Mantle model |
+| `mantle_api_path` | `/openai/v1` | Mantle API path |
+| `max_tokens` | `4096` | Output token budget |
+| `reasoning_effort` | `low` | Grok reasoning effort |
+| `api_stage_name` | `dev` | API Gateway stage |
+
+Tear down:
+
+```bash
+cd terraform
+terraform destroy
+```
+
+More detail: [`terraform/README.md`](terraform/README.md).
+
+---
+
+## Deploy with the AWS Console
+
+### 1. Create the Lambda IAM role
 
 1. **IAM** → **Roles** → **Create role**.
 2. Trusted entity: **AWS service** → **Lambda** → Next.
@@ -81,9 +141,9 @@ If the managed Mantle policy is missing, add this inline policy (replace `111122
 
 > The Lambda generates a **short-term Bedrock bearer token from its IAM role** (`aws-bedrock-token-generator`). A static `BEDROCK_API_KEY` is optional.
 
-## 2. Create the Lambda function in the AWS Console
+### 2. Create the Lambda function
 
-### 2a. Create the function
+#### 2a. Create the function
 
 1. Open the [Lambda console](https://us-west-2.console.aws.amazon.com/lambda/home?region=us-west-2#/functions) in **us-west-2**.
 2. **Create function** → **Author from scratch**
@@ -93,7 +153,7 @@ If the managed Mantle policy is missing, add this inline policy (replace `111122
    - Role: `bedrock-ask-lambda-role`
 3. Create function.
 
-### 2b. Upload `function.zip`
+#### 2b. Upload `function.zip`
 
 **Option A — use the prebuilt zip in this repo**
 
@@ -111,7 +171,7 @@ Then upload the new `lambda/function.zip` the same way.
 
 After upload, the file tree should show `lambda_function.py` **and** folders like `openai/`, `httpx/`, `pydantic_core/`.
 
-### 2c. Timeout, memory, and environment variables
+#### 2c. Timeout, memory, and environment variables
 
 1. **Configuration** → **General configuration**:
    - Timeout: **60** seconds
@@ -128,7 +188,7 @@ After upload, the file tree should show `lambda_function.py` **and** folders lik
 
 > Grok spends tokens on reasoning. If `MAX_TOKENS` is too low (e.g. 1024), you may get an empty/`incomplete` answer. Keep `REASONING_EFFORT=low` for simple Q&A.
 
-### 2d. Test in the console
+#### 2d. Test in the console
 
 ```json
 {
@@ -139,7 +199,7 @@ After upload, the file tree should show `lambda_function.py` **and** folders lik
 
 Expect `200` with `answer`, `model: xai.grok-4.6`, and `endpoint: bedrock-mantle`.
 
-## 3. Create an open API Gateway REST API
+### 3. Create an open API Gateway REST API
 
 1. Stay in **us-west-2**.
 2. **API Gateway** → **REST API** → name `bedrock-ask-api`.
@@ -154,7 +214,9 @@ https://{api-id}.execute-api.us-west-2.amazonaws.com/dev/ask
 
 > Wrong URLs (missing `/dev` or `/ask`) return `{"message":"Missing Authentication Token"}` even when the API is open.
 
-## 4. Test end-to-end
+---
+
+## Test end-to-end
 
 ```bash
 export API_URL="https://YOUR_API_ID.execute-api.us-west-2.amazonaws.com/dev/ask"
@@ -213,6 +275,9 @@ response = client.responses.create(
 
 ## Cleanup
 
+**Terraform:** `cd terraform && terraform destroy`
+
+**Console:**
 1. Delete API Gateway `bedrock-ask-api`
 2. Delete Lambda `bedrock-ask`
 3. Delete IAM role `bedrock-ask-lambda-role`
@@ -222,4 +287,4 @@ response = client.responses.create(
 - `bedrock-runtime` / Converse / InvokeModel
 - Cognito, API keys on API Gateway, WAF
 - Streaming responses
-- SAM / CDK / Terraform
+- SAM / CDK (Terraform is included under `terraform/`)

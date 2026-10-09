@@ -1,0 +1,19 @@
+aws_region   = "us-west-2"
+project_name = "bedrock-ask"
+
+# Rebuild first if you changed handler or requirements:
+#   ../scripts/package-lambda.sh
+lambda_zip_path = "../lambda/function.zip"
+
+model_id         = "xai.grok-4.6"
+mantle_api_path  = "/openai/v1"
+max_tokens       = "4096"
+reasoning_effort = "low"
+
+api_stage_name = "dev"
+
+tags = {
+  Project   = "bedrock-ask"
+  ManagedBy = "terraform"
+  Env       = "dev"
+}
