@@ -1,0 +1,9 @@
+# OpenAI examples: langchain_example.py, langchain_complete_example.py, langchain_dotenv_example.py
+langchain-openai>=1.0.0
+langchain-core>=1.6.10
+
+# Ollama examples: langchain_ollama_example.py, langchain_ollama_cloud_example.py
+langchain-ollama>=1.1.0
+
+# Env loading: langchain_dotenv_example.py, Ollama examples
+python-dotenv>=1.2.4
