@@ -5,5 +5,11 @@ langchain-core>=1.6.10
 # Ollama examples: langchain_ollama_example.py, langchain_ollama_cloud_example.py
 langchain-ollama>=1.1.0
 
-# Env loading: langchain_dotenv_example.py, Ollama examples
+# Env loading: langchain_dotenv_example.py, Ollama examples, Guardrails example
 python-dotenv>=1.2.4
+
+# Guardrails example: langchain_guardrails_example.py
+# After pip install, also run:
+#   guardrails hub install hub://guardrails/detect_jailbreak
+streamlit>=1.32.0
+guardrails-ai>=0.5.0
