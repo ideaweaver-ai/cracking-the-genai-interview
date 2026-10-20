@@ -32,6 +32,7 @@ DevOps, SRE, platform, and forward-deployed engineers who want a course aimed at
 | [`token_count_cost`](token_count_cost) | A script that calls a model API and estimates input and output token cost. |
 | [`bedrock-apig-lambda`](bedrock-apig-lambda) | Console lab: API Gateway → Lambda → Amazon Bedrock Mantle Q&A (`xai.grok-4.6`), with prebuilt `function.zip`. |
 | [`rag/document_loader`](rag/document_loader) | Simple LangChain loaders for text, PDF, CSV, and a directory of files. |
+| [`rag/text_splitter`](rag/text_splitter) | Simple LangChain splitters: fixed-length and recursive character splitting. |
 
 ## License
 
