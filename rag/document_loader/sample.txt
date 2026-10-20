@@ -1,0 +1,7 @@
+Kubernetes CrashLoopBackOff
+
+A pod is stuck restarting because its container keeps crashing.
+Common causes include a bad image, missing env vars, failed probes,
+or the process exiting with a non-zero code.
+
+Check: kubectl describe pod, kubectl logs, and recent events.

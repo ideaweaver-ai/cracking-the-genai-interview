@@ -1,0 +1,4 @@
+pod,status,reason
+api-7f8d9,CrashLoopBackOff,container keeps exiting
+web-3c2a1,ImagePullBackOff,wrong image tag
+db-9b4e2,Running,healthy
