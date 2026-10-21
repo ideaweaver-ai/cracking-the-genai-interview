@@ -1,0 +1,7 @@
+Kubernetes CrashLoopBackOff means a pod is stuck restarting because its container keeps crashing.
+Common causes include a bad image, missing env vars, failed probes, or the process exiting with a non-zero code.
+Check kubectl describe pod, kubectl logs, and recent events.
+
+S3 billing is based on storage used, requests, and data transfer out of the region.
+Infrequent Access and Glacier cost less per GB, but retrieval and early-delete fees can add up.
+A FinOps review usually starts with the S3 Storage Lens dashboard and lifecycle rules.
