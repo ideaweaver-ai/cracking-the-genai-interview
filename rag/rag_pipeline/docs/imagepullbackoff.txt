@@ -1,0 +1,5 @@
+Kubernetes ImagePullBackOff
+
+The node cannot pull the container image.
+Common causes include a wrong image name, a missing tag, or registry auth.
+Check: kubectl describe pod and the image pull events.

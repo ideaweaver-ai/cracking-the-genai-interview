@@ -1,0 +1,4 @@
+Kubernetes CrashLoopBackOff
+
+A pod is stuck restarting because its container keeps crashing.
+Check: kubectl describe pod, kubectl logs, and recent events.

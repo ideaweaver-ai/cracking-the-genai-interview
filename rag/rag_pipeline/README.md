@@ -19,7 +19,14 @@ The first two notebooks need `OPENAI_API_KEY` in Colab Secrets (key icon on the 
 
 For the MiniLM, Qwen embedding, and Streamlit notebooks: Runtime → Change runtime type → T4 GPU. First run downloads the models.
 
-The notebooks write two sample Kubernetes docs (`crashloopbackoff.txt`, `imagepullbackoff.txt`) if they are missing.
+Sample docs are in [`docs/`](docs):
+
+| File | Topic |
+| --- | --- |
+| `docs/crashloopbackoff.txt` | Why a pod is in CrashLoopBackOff and how to debug it |
+| `docs/imagepullbackoff.txt` | Why a pod is in ImagePullBackOff and how to debug it |
+
+The Colab notebooks write these same files if they are missing.
 
 ## Notes
 
