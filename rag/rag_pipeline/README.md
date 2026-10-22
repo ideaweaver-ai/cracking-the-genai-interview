@@ -28,6 +28,31 @@ Sample docs are in [`docs/`](docs):
 
 The Colab notebooks write these same files if they are missing.
 
+## Local script with LangSmith tracing
+
+`rag_pipeline_traceable.py` is the same docs RAG as the first notebook, with `@traceable` on load, split, embed, setup, and the full run.
+
+```bash
+pip install langchain-openai langchain-core langchain-community langchain-text-splitters python-dotenv langsmith
+```
+
+Add this to a `.env` in the folder you run from (do not commit the key):
+
+```
+OPENAI_API_KEY=your-openai-api-key
+LANGCHAIN_TRACING_V2=true
+LANGCHAIN_API_KEY=your-langsmith-api-key
+LANGCHAIN_PROJECT=rag-pipeline-docs-new
+```
+
+Create the LangSmith key at https://smith.langchain.com/settings. Then:
+
+```bash
+python3 rag_pipeline_traceable.py
+```
+
+Traces show up in LangSmith under project `rag-pipeline-docs-new` (or whatever you set in `.env`).
+
 ## Notes
 
 - OpenAI and MiniLM embeddings have different vector sizes, so each notebook uses its own Chroma folder.
