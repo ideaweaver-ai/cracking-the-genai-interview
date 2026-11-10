@@ -1,0 +1,364 @@
+{
+  "name": "GitHub PR reviewer 2",
+  "nodes": [
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "owner": {
+          "__rl": true,
+          "value": "ideaweaver-ai",
+          "mode": "list",
+          "cachedResultName": "ideaweaver-ai",
+          "cachedResultUrl": "https://github.com/ideaweaver-ai"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "devops-testing",
+          "mode": "list",
+          "cachedResultName": "devops-testing",
+          "cachedResultUrl": "https://github.com/ideaweaver-ai/devops-testing"
+        },
+        "events": [
+          "pull_request"
+        ],
+        "options": {}
+      },
+      "id": "c85fca74-8409-47a3-aafd-61837ecfd1cb",
+      "name": "Github Trigger1",
+      "type": "n8n-nodes-base.githubTrigger",
+      "typeVersion": 1,
+      "position": [
+        816,
+        464
+      ],
+      "webhookId": "0fc16936-079f-485d-a00f-bcf021b08088",
+      "credentials": {
+        "githubOAuth2Api": {
+          "id": "FZGR91RFj7pxgRKs",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+              "leftValue": "={{ $json.body.action }}",
+              "rightValue": "opened",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+              "leftValue": "={{ $json.body.action }}",
+              "rightValue": "synchronize",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+              "leftValue": "={{ $json.body.action }}",
+              "rightValue": "reopened",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "d4e5f6a7-b8c9-0123-defa-234567890123",
+              "leftValue": "={{ $json.body.action }}",
+              "rightValue": "ready_for_review",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "id": "18e05916-4bb2-428a-b3a8-9b9ac5e8b0d6",
+      "name": "Filter PR actions1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1040,
+        464
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e5f6a7b8-c9d0-1234-efab-345678901234",
+              "leftValue": "={{ $json.body.pull_request.draft }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "458caa2c-90c8-47c4-aae7-4403f3bce695",
+      "name": "Skip draft PRs",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1264,
+        464
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.github.com/repos/{{ $json.body.repository.owner.login }}/{{ $json.body.repository.name }}/pulls/{{ $json.body.number }}/files",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "githubApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/vnd.github+json"
+            },
+            {
+              "name": "X-GitHub-Api-Version",
+              "value": "2022-11-28"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "9386a608-5142-4c92-836f-ea66f673d201",
+      "name": "HTTP Request1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1488,
+        464
+      ],
+      "credentials": {
+        "githubApi": {
+          "id": "pHBas16j6aF6Uvnx",
+          "name": "GitHub account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "language": "pythonNative",
+        "pythonCode": "def build_devops_pr_review_prompt(pr_files):\n    diffs = \"\"\n\n    for f in pr_files:\n        filename = f.get(\"filename\", \"unknown-file\")\n        patch = f.get(\"patch\")\n\n        diffs += f\"### File: {filename}\\n\\n\"\n\n        if patch:\n            safe_patch = patch.replace(\"```\", \"'''\")\n            diffs += \"```diff\\n\" + safe_patch + \"\\n```\\n\"\n        else:\n            diffs += \"No patch available (likely a binary or large file).\\n\"\n\n        diffs += \"\\n---\\n\\n\"\n\n    user_message = f\"\"\"\nYou are a senior DevOps engineer with deep experience in CI/CD, IaC, Kubernetes, cloud, and security.\n\nPlease review the following code changes in these files:\n\n{diffs}\n\nYour mission:\n- Review the proposed changes file by file.\n- Focus on DevOps best practices, reliability, security, and scalability.\n- Identify potential issues in CI/CD, IaC, containerization, or cloud configs.\n- Suggest concrete improvements where applicable.\n- Ignore files without meaningful patches.\n\"\"\"\n    return user_message.strip()\n\n\n# n8n Python (Native): read input items\n# Each incoming item looks like: {\"json\": {...}}\nfiles = []\nfor it in _items:\n    j = it.get(\"json\", {})\n    # Your HTTP node might return either the file object directly,\n    # or wrap it under some key. This handles both.\n    if isinstance(j, dict) and \"filename\" in j:\n        files.append(j)\n    elif isinstance(j, dict) and \"body\" in j and isinstance(j[\"body\"], list):\n        files.extend(j[\"body\"])\n\nprompt = build_devops_pr_review_prompt(files)\n\n# n8n expects a list of output items\nreturn [{\"json\": {\"prompt\": prompt}}]"
+      },
+      "id": "0c3b7290-1a3f-4d64-a0f9-1e9bb27787cb",
+      "name": "Code in Python1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1712,
+        464
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.prompt }}",
+        "options": {
+          "systemMessage": "You are a senior DevOps engineer reviewing pull requests. Focus on CI/CD, IaC, containers, cloud configuration, security, reliability and scalability, and give concrete, actionable suggestions."
+        }
+      },
+      "id": "72620463-f2fd-4d60-a427-7345bb0d9833",
+      "name": "AI Agent1",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1936,
+        464
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "b8eaa414-3010-49cc-8c97-89b7d3445ed1",
+      "name": "OpenAI Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1888,
+        704
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "review",
+        "owner": {
+          "__rl": true,
+          "value": "ideaweaver-ai",
+          "mode": "list",
+          "cachedResultName": "ideaweaver-ai",
+          "cachedResultUrl": "https://github.com/ideaweaver-ai"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "devops-testing",
+          "mode": "list",
+          "cachedResultName": "devops-testing",
+          "cachedResultUrl": "https://github.com/ideaweaver-ai/devops-testing"
+        },
+        "pullRequestNumber": "={{ $('Github Trigger1').item.json.body.number }}",
+        "event": "comment",
+        "body": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "id": "bd2f08d4-7602-4c09-a00d-0b1b6fbd2dc6",
+      "name": "Create a review1",
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        2288,
+        464
+      ],
+      "webhookId": "06614643-0830-4240-8b0e-cf688674deeb",
+      "credentials": {
+        "githubOAuth2Api": {
+          "id": "5qUzgdN92WEq0CtI",
+          "name": "GitHub account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Github Trigger1": {
+      "main": [
+        [
+          {
+            "node": "Filter PR actions1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter PR actions1": {
+      "main": [
+        [
+          {
+            "node": "Skip draft PRs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Skip draft PRs": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Code in Python1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in Python1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Create a review1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "7f176ab5-5f56-4883-bc33-d99994be8480",
+  "meta": {
+    "instanceId": "cb1a7054327a6b4217c4195c787f4b38c40eb8246389b54b6902dca044b1c75d"
+  },
+  "nodeGroups": [],
+  "id": "E5hV3Oybt14FsNRO",
+  "tags": []
+}
