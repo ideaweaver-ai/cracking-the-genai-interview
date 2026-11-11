@@ -2,7 +2,7 @@ import uuid
 import requests
 import streamlit as st
 
-N8N_WEBHOOK_URL = "https://ideaweavercloud.app.n8n.cloud/webhook-test/99a8b300-69a8-4515-812b-31472e7d8095"  # use your n8n production webhook URL
+N8N_WEBHOOK_URL = =""  # use your n8n production webhook URL
 
 # page header
 st.title("🤖 My Smart Helper")
