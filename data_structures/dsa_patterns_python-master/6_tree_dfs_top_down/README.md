@@ -4,7 +4,7 @@ Pass information about ancestors to children through DFS arguments: a path slate
 
 ## Code style
 
-Based on *Trees Practice Session 2*: handle an empty root in the public function, use a nested `dfs(node, ...)`, and call it only on existing children. Distinguish leaf cases when they require special work. Mutable path slates use append/pop backtracking; copy a slate when saving a path. Shared scalar answers use one-element lists scoped to each call.
+Based on *Trees Practice Session 2*: handle an empty root in the public function, use a nested `dfs(node, ...)`, and call it only on existing children. Distinguish leaf cases when they require special work. Mutable path slates use append/pop backtracking; copy a slate when saving a path. Shared answers use a `Result` class with named instance fields, initialized separately for each call. Lists remain appropriate for actual collections and path slates.
 
 Examples run only under the `__main__` guard. Each problem is self-contained with its own node class. In complexity notes, `n` is the node count, `h` the tree height, and `w` the maximum width. Output storage is separate from auxiliary space.
 

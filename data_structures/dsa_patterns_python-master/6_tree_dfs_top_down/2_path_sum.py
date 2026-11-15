@@ -8,23 +8,30 @@ class TreeNode:
         self.right = right
 
 
+class Result:
+    """Shared DFS answer, initialized separately for each public call."""
+
+    def __init__(self):
+        self.found = False
+
+
 def has_path(root, target):
     if root is None:
         return False
-    flag = [False]
+    result = Result()
 
     def dfs(node, remaining):
         remaining -= node.val
         if node.left is None and node.right is None:
             if remaining == 0:
-                flag[0] = True
+                result.found = True
         if node.left is not None:
             dfs(node.left, remaining)
         if node.right is not None:
             dfs(node.right, remaining)
 
     dfs(root, target)
-    return flag[0]
+    return result.found
 
 
 def main():

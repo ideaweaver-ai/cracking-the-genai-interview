@@ -10,10 +10,17 @@ class TreeNode:
         self.right = right
 
 
+class Result:
+    """Shared DFS answer, initialized separately for each public call."""
+
+    def __init__(self):
+        self.count = 0
+
+
 def count_paths(root, target):
     if root is None:
         return 0
-    global_count = [0]
+    result = Result()
 
     def dfs(node, slate):
         slate.append(node.val)
@@ -21,7 +28,7 @@ def count_paths(root, target):
         for value in reversed(slate):
             suffix_sum += value
             if suffix_sum == target:
-                global_count[0] += 1
+                result.count += 1
         if node.left is not None:
             dfs(node.left, slate)
         if node.right is not None:
@@ -29,7 +36,7 @@ def count_paths(root, target):
         slate.pop()
 
     dfs(root, [])
-    return global_count[0]
+    return result.count
 
 
 def main():

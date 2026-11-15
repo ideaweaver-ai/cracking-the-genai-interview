@@ -9,6 +9,13 @@ class TreeNode:
         self.children = [] if children is None else children
 
 
+class Result:
+    """Shared DFS answer, initialized separately for each public call."""
+
+    def __init__(self):
+        self.max_height = 0
+
+
 def max_depth(root):
     return _height(root, 0)
 
@@ -20,18 +27,18 @@ def find_height(root):
 def _height(root, initial_depth):
     if root is None:
         return 0
-    global_height = [0]
+    result = Result()
 
     def dfs(node, depth_to_parent):
         depth = depth_to_parent + 1
-        global_height[0] = max(global_height[0], depth)
+        result.max_height = max(result.max_height, depth)
         if not node.children:
             return
         for child in node.children:
             dfs(child, depth)
 
     dfs(root, initial_depth)
-    return global_height[0]
+    return result.max_height
 
 
 def main():
