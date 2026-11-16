@@ -8,24 +8,31 @@ class TreeNode:
         self.right = right
 
 
+class Result:
+    """Shared DFS answer, initialized separately for each public call."""
+
+    def __init__(self):
+        self.is_same = True
+
+
 def is_same_tree(root1, root2):
     if root1 is None or root2 is None:
         return root1 is root2
-    same = [True]
+    result = Result()
 
     def dfs(node1, node2):
         if node1.val != node2.val:
-            same[0] = False
+            result.is_same = False
             return
         # Check structure before recursing, so both DFS inputs are non-null.
         for child1, child2 in ((node1.left, node2.left), (node1.right, node2.right)):
             if (child1 is None) != (child2 is None):
-                same[0] = False
+                result.is_same = False
             elif child1 is not None:
                 dfs(child1, child2)
 
     dfs(root1, root2)
-    return same[0]
+    return result.is_same
 
 
 def main():

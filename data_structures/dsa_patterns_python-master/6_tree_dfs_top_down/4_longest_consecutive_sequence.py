@@ -10,14 +10,21 @@ class TreeNode:
         self.right = right
 
 
+class Result:
+    """Shared DFS answer, initialized separately for each public call."""
+
+    def __init__(self):
+        self.max_length = 0
+
+
 def longest_consecutive(root):
     if root is None:
         return 0
-    global_max = [0]
+    result = Result()
 
     def dfs(node, parent_value, length):
         length = length + 1 if node.val == parent_value + 1 else 1
-        global_max[0] = max(global_max[0], length)
+        result.max_length = max(result.max_length, length)
         if node.left is None and node.right is None:
             return
         if node.left is not None:
@@ -26,7 +33,7 @@ def longest_consecutive(root):
             dfs(node.right, node.val, length)
 
     dfs(root, root.val, 0)
-    return global_max[0]
+    return result.max_length
 
 
 def main():

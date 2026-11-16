@@ -11,22 +11,29 @@ class TreeNode:
         self.right = right
 
 
+class Result:
+    """Shared DFS answer, initialized separately for each public call."""
+
+    def __init__(self):
+        self.root = None
+
+
 def upside_down_tree(root):
     if root is None:
         return None
-    new_root = [None]
+    result = Result()
 
     def dfs(node, parent, right_sibling):
         old_left, old_right = node.left, node.right
         node.left = right_sibling
         node.right = parent
         if old_left is None:
-            new_root[0] = node
+            result.root = node
             return
         dfs(old_left, node, old_right)
 
     dfs(root, None, None)
-    return new_root[0]
+    return result.root
 
 
 def main():

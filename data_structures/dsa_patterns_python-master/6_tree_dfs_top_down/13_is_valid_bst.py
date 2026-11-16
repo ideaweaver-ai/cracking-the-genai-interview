@@ -8,14 +8,21 @@ class TreeNode:
         self.right = right
 
 
+class Result:
+    """Shared DFS answer, initialized separately for each public call."""
+
+    def __init__(self):
+        self.is_valid = True
+
+
 def is_valid_bst(root):
     if root is None:
         return True
-    valid = [True]
+    result = Result()
 
     def dfs(node, lower, upper):
         if not lower < node.val < upper:
-            valid[0] = False
+            result.is_valid = False
             return
         if node.left is not None:
             dfs(node.left, lower, node.val)
@@ -23,7 +30,7 @@ def is_valid_bst(root):
             dfs(node.right, node.val, upper)
 
     dfs(root, float("-inf"), float("inf"))
-    return valid[0]
+    return result.is_valid
 
 
 def is_valid_bst_iterative(root):

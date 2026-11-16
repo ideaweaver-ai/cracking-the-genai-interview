@@ -10,15 +10,22 @@ class TreeNode:
         self.right = right
 
 
+class Result:
+    """Shared DFS answer, initialized separately for each public call."""
+
+    def __init__(self):
+        self.total = 0
+
+
 def find_sum_of_path_numbers(root):
     if root is None:
         return 0
-    total = [0]
+    result = Result()
 
     def dfs(node, number):
         number = number * 10 + node.val
         if node.left is None and node.right is None:
-            total[0] += number
+            result.total += number
             return
         if node.left is not None:
             dfs(node.left, number)
@@ -26,7 +33,7 @@ def find_sum_of_path_numbers(root):
             dfs(node.right, number)
 
     dfs(root, 0)
-    return total[0]
+    return result.total
 
 
 def main():

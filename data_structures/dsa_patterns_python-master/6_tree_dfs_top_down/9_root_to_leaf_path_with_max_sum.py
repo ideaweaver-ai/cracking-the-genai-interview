@@ -10,19 +10,26 @@ class TreeNode:
         self.right = right
 
 
+class Result:
+    """Shared DFS answer, initialized separately for each public call."""
+
+    def __init__(self):
+        self.max_sum = float('-inf')
+        self.path = []
+
+
 def find_max_path(root):
     if root is None:
         return 0, []
-    best_sum = [float("-inf")]
-    best_path = [[]]
+    result = Result()
 
     def dfs(node, path_sum, slate):
         path_sum += node.val
         slate.append(node.val)
         if node.left is None and node.right is None:
-            if path_sum > best_sum[0]:
-                best_sum[0] = path_sum
-                best_path[0] = slate[:]
+            if path_sum > result.max_sum:
+                result.max_sum = path_sum
+                result.path = slate[:]
         if node.left is not None:
             dfs(node.left, path_sum, slate)
         if node.right is not None:
@@ -30,7 +37,7 @@ def find_max_path(root):
         slate.pop()
 
     dfs(root, 0, [])
-    return best_sum[0], best_path[0]
+    return result.max_sum, result.path
 
 
 def main():
