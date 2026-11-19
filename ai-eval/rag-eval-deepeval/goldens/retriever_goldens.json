@@ -1,0 +1,122 @@
+[
+  {
+    "id": "kubernetes-eval-manualv2-0013",
+    "query": "My pod won't start after I mounted a Secret. Could a missing key in that Secret be the reason?",
+    "ideal_answer": "Yes. If the Pod references a specific key in a non-optional Secret and that Secret exists but is missing the named key, the Pod fails during startup.",
+    "source": "concepts_configuration_secret"
+  },
+  {
+    "id": "kubernetes-eval-manualv2-0018",
+    "query": "What is a service account in Kubernetes, in plain English?",
+    "ideal_answer": "A service account is a non-human account that gives Pods and other components a distinct identity in the cluster (for example, when talking to the API server).",
+    "source": "concepts_security_service-accounts"
+  },
+  {
+    "id": "kubernetes-eval-manualv2-0044",
+    "query": "Why can't someone with the default view role read Secrets?",
+    "ideal_answer": "The view role intentionally cannot read Secrets, because Secret contents can include ServiceAccount credentials and that would let someone act as any ServiceAccount in the namespace (privilege escalation).",
+    "source": "reference_access-authn-authz_rbac"
+  },
+  {
+    "id": "kubernetes-eval-manualv2-0215",
+    "query": "How can other pods discover and talk to DaemonSet pods running on nodes?",
+    "ideal_answer": "A common pattern is DNS: create a headless Service with the same pod selector, then discover the DaemonSet pods via Endpoints or multiple DNS A records.",
+    "source": "concepts_workloads_controllers_daemonset"
+  },
+  {
+    "id": "kubernetes-test-manualv2-0042",
+    "query": "Why should I put app config in a ConfigMap instead of baking it into the image?",
+    "ideal_answer": "ConfigMaps let you keep configuration separate from the container image, which makes the app more portable across environments.",
+    "source": "tasks_configure-pod-container_configure-pod-configmap"
+  },
+  {
+    "id": "kubernetes-test-manualv2-0096",
+    "query": "My Service doesn't seem to work. What's the first thing I should check?",
+    "ideal_answer": "First check whether the Service object actually exists.",
+    "source": "tasks_debug_debug-application_debug-service"
+  },
+  {
+    "id": "kubernetes-train-manualv2-00322",
+    "query": "How do I stop a LoadBalancer Service from also opening NodePorts on my nodes?",
+    "ideal_answer": "Set spec.allocateLoadBalancerNodePorts to false.",
+    "source": "concepts_services-networking_service"
+  },
+  {
+    "id": "kubernetes-train-manualv2-00334",
+    "query": "I created an Ingress with no rules — do I still need to configure something?",
+    "ideal_answer": "Yes. If an Ingress has no rules, you must specify .spec.defaultBackend.",
+    "source": "concepts_services-networking_ingress"
+  },
+  {
+    "id": "kubernetes-train-manualv2-00342",
+    "query": "If I apply more than one NetworkPolicy to the same pod, which one wins?",
+    "ideal_answer": "They combine additively: allowed connections are the union of what the applicable policies allow.",
+    "source": "concepts_services-networking_network-policies"
+  },
+  {
+    "id": "kubernetes-train-manualv2-00871",
+    "query": "What actually happens when I update a Deployment?",
+    "ideal_answer": "Kubernetes creates a new ReplicaSet and scales it up while scaling the old ReplicaSet down.",
+    "source": "concepts_workloads_controllers_deployment"
+  },
+  {
+    "id": "kubernetes-train-manualv2-00906",
+    "query": "Why would I use a ReplicaSet instead of a ReplicationController?",
+    "ideal_answer": "ReplicaSets support set-based selector requirements, which ReplicationControllers do not.",
+    "source": "concepts_workloads_controllers_replicaset"
+  },
+  {
+    "id": "kubernetes-train-manualv2-00925",
+    "query": "Can I pause a Job without deleting it?",
+    "ideal_answer": "Yes. Setting .spec.parallelism to 0 effectively pauses the Job until you raise parallelism again.",
+    "source": "concepts_workloads_controllers_job"
+  },
+  {
+    "id": "kubernetes-train-manualv2-00974",
+    "query": "What makes a StatefulSet pod's identity \"stable\"?",
+    "ideal_answer": "Each pod gets a stable identity made of an ordinal, a stable network identity, and stable storage.",
+    "source": "concepts_workloads_controllers_statefulset"
+  },
+  {
+    "id": "kubernetes-train-manualv2-01033",
+    "query": "Who is responsible for managing static pods?",
+    "ideal_answer": "The kubelet on a specific node manages static Pods directly.",
+    "source": "concepts_workloads_pods"
+  },
+  {
+    "id": "kubernetes-train-manualv2-01109",
+    "query": "If the kubelet restarts on a node, do my pods get killed too?",
+    "ideal_answer": "No. Pods and their containers continue running while the kubelet restarts.",
+    "source": "concepts_workloads_pods_pod-lifecycle"
+  },
+  {
+    "id": "kubernetes-train-manualv2-01530",
+    "query": "My liveness probe keeps failing with a non-zero exit code. What does Kubernetes do next?",
+    "ideal_answer": "The kubelet kills the container and restarts it.",
+    "source": "tasks_configure-pod-container_configure-liveness-readiness-startup-probes"
+  },
+  {
+    "id": "kubernetes-train-manualv2-01554",
+    "query": "What does runAsUser in a pod securityContext actually control?",
+    "ideal_answer": "It sets the user ID that processes inside the Pod's containers run as.",
+    "source": "tasks_configure-pod-container_security-context"
+  },
+  {
+    "id": "kubernetes-train-manualv2-01977",
+    "query": "What is the downward API and when would I use it?",
+    "ideal_answer": "It is how you expose Pod or container fields to running containers, via environment variables or files in a volume.",
+    "source": "tasks_inject-data-application_environment-variable-expose-pod-information"
+  },
+  {
+    "id": "kubernetes-train-manualv2-02124",
+    "query": "Under the hood, what does a Kubernetes Service point to?",
+    "ideal_answer": "EndpointSlices that hold the matching Pod endpoints.",
+    "source": "tutorials_services_connect-applications-service"
+  },
+  {
+    "id": "kubernetes-train-manualv2-02160",
+    "query": "What do I need to tell Kubernetes when I create a Deployment for my app?",
+    "ideal_answer": "At minimum, the container image and how many replicas to run.",
+    "source": "tutorials_kubernetes-basics_deploy-app_deploy-intro"
+  }
+]

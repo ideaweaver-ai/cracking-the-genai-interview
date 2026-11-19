@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Selecting the Right LLM for Your AI App — Custom Model Evals</title>
+  <style>
+    :root {
+      --ink: #1a1a1a;
+      --muted: #555;
+      --line: #ddd;
+      --accent: #0b5fff;
+      --bg-code: #f6f8fa;
+      --ok: #0a7a3e;
+      --bad: #b42318;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      color: var(--ink);
+      line-height: 1.55;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+      background: #fff;
+    }
+    h1 { font-size: 1.85rem; margin: 0 0 0.25rem; line-height: 1.25; }
+    h2 {
+      font-size: 1.25rem;
+      margin-top: 2rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--line);
+    }
+    h3 { font-size: 1.05rem; margin-top: 1.4rem; }
+    p, li { font-size: 0.98rem; }
+    .subtitle { color: var(--muted); margin: 0 0 1.25rem; font-size: 1.05rem; }
+    .meta {
+      background: #f3f6ff;
+      border: 1px solid #d9e3ff;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin: 0 0 1.5rem;
+      font-size: 0.92rem;
+    }
+    .meta strong { color: var(--accent); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.75rem 0 1.25rem;
+      font-size: 0.92rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: #f7f7f7; }
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.86rem;
+    }
+    pre {
+      background: var(--bg-code);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px 14px;
+      overflow-x: auto;
+    }
+    figure {
+      margin: 1.25rem 0;
+      padding: 0;
+    }
+    figure img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #111;
+    }
+    figure.inline-result img {
+      width: auto;
+      max-width: 100%;
+      border: none;
+      border-radius: 4px;
+      background: #000;
+      padding: 8px 12px;
+    }
+    figcaption {
+      margin-top: 0.45rem;
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+    .note {
+      border-left: 4px solid var(--accent);
+      background: #f8faff;
+      padding: 10px 12px;
+      margin: 1rem 0;
+      font-size: 0.94rem;
+    }
+    .warn {
+      border-left: 4px solid #d97706;
+      background: #fffbeb;
+      padding: 10px 12px;
+      margin: 1rem 0;
+      font-size: 0.94rem;
+    }
+    .formula {
+      background: #111;
+      color: #fff;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      font-size: 0.9rem;
+      margin: 0.75rem 0 1rem;
+      overflow-x: auto;
+    }
+    .ok { color: var(--ok); font-weight: 600; }
+    .bad { color: var(--bad); font-weight: 600; }
+    a { color: var(--accent); }
+    ul.check { list-style: none; padding-left: 0; }
+    ul.check li::before { content: "☐ "; }
+    footer {
+      margin-top: 2.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+    @media print {
+      body { padding: 0; max-width: none; }
+      h2 { break-after: avoid; }
+      pre, table, .note, .warn, .formula, figure { break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Selecting the Right LLM for Your AI App</h1>
+  <p class="subtitle">Running Custom Model Evals — Text-to-SQL Case Study (Housing Data)</p>
+
+  <div class="meta">
+    <div><strong>Audience:</strong> Students building / evaluating AI features</div>
+    <div><strong>Case study:</strong> Ask housing questions in English → generate SQL → return correct answers</div>
+    <div><strong>Goal:</strong> Shortlist models using cost, latency, and <em>your</em> eval — not only public leaderboards</div>
+  </div>
+
+  <h2>1. The product problem</h2>
+  <p>
+    Imagine a housing analytics app inspired by Redfin / Zillow. Users ask questions in plain English.
+    The system must turn each question into SQL, run it on a database, and return the correct answer.
+  </p>
+  <p><strong>Example questions</strong></p>
+  <ul>
+    <li>Which metros had the biggest price drop last year?</li>
+    <li>Which state had the highest median sale price in 2024?</li>
+    <li>What was the median sale price in Fremont for the most recent month?</li>
+  </ul>
+  <p><strong>Task name:</strong> Text-to-SQL → select the best model for this task.</p>
+
+  <div class="warn">
+    <strong>Important:</strong> Use public research / market-tracker downloads.
+    Do <strong>not</strong> scrape live Redfin or Zillow listing pages.
+    <br />
+    Redfin: <a href="https://www.redfin.com/news/data-center/downloads/">Data Center downloads</a>
+    ·
+    Zillow: <a href="https://www.zillow.com/research/data/">Research data</a>
+  </div>
+
+  <h2>2. Requirements before you pick a model</h2>
+  <table>
+    <thead>
+      <tr><th>Requirement</th><th>Case-study decision</th><th>Why it matters</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Task</td><td>Text-to-SQL</td><td>Evaluate execution accuracy, not “sounds good”</td></tr>
+      <tr><td>Cost</td><td>Ceiling ≈ <strong>$1,000 / month</strong> (confirm with PM)</td><td>Great models can still be unaffordable</td></tr>
+      <tr><td>Latency</td><td><strong>≤ 3 seconds</strong></td><td>Heavy reasoning models may be too slow</td></tr>
+      <tr><td>Context</td><td>Mostly single-turn (no session history)</td><td>Schema + question is usually enough</td></tr>
+      <tr><td>Deployment</td><td>Open-source or closed-source</td><td>Privacy may force self-hosting</td></tr>
+      <tr><td>Correctness</td><td><strong>Critical</strong></td><td>Wrong numbers → screenshots → bad PR</td></tr>
+    </tbody>
+  </table>
+  <p>The “best” model on a public leaderboard is not automatically the right model for <em>your</em> app.</p>
+
+  <h2>3. The prompt you will evaluate</h2>
+  <p>Freeze one prompt so every model is tested fairly.</p>
+  <h3>SYSTEM</h3>
+  <pre>You are a text-to-SQL generator. Given a database schema and a question,
+return a single SQL query that answers it. Use SQLite syntax.
+Return only the SQL query.</pre>
+
+  <h3>USER</h3>
+  <pre>Schema:
+CREATE TABLE "markets" (
+  "region_id" INTEGER,
+  "region_name" TEXT,
+  "region_type" TEXT,
+  "period_begin" DATE,
+  "period_end" DATE,
+  "median_sale_price" REAL,
+  "median_list_price" REAL,
+  "homes_sold" INTEGER,
+  "pending_sales" INTEGER,
+  "new_listings" INTEGER,
+  "inventory" INTEGER,
+  "median_dom" INTEGER,
+  "price_drops" INTEGER
+);
+
+Question: Which metro has the lowest months of supply among metros with at
+least 500 homes sold in the latest month? Months of supply = active listings
+divided by homes sold. Give the metro and the months of supply.
+
+SQL:</pre>
+
+  <h3>Example gold SQL</h3>
+  <pre>SELECT region_name AS metro,
+       1.0 * inventory / homes_sold AS months_of_supply
+FROM markets
+WHERE region_type = 'metro'
+  AND period_end = (SELECT MAX(period_end) FROM markets)
+  AND homes_sold >= 500
+ORDER BY months_of_supply ASC
+LIMIT 1;</pre>
+
+  <div class="note">
+    In a real eval harness, score by <strong>execution accuracy</strong>:
+    run the model SQL and the gold SQL, then compare result sets — not the SQL string.
+  </div>
+
+  <h2>4. Estimate tokens</h2>
+  <p>
+    Go to <a href="https://tiktokenizer.vercel.app/">https://tiktokenizer.vercel.app/</a>
+    and count tokens for the <strong>input prompt</strong> and the <strong>output SQL</strong>.
+  </p>
+
+  <figure>
+    <img src="handout_assets/page3_img1.png" alt="Tiktokenizer screenshot: input prompt token count 186" />
+    <figcaption>
+      Figure 1. Tiktokenizer on the input prompt (system + schema). Token count ≈ <strong>186</strong>
+      (round to ~200 for planning).
+    </figcaption>
+  </figure>
+
+  <figure>
+    <img src="handout_assets/page3_img2.png" alt="Tiktokenizer screenshot: output SQL token count 66" />
+    <figcaption>
+      Figure 2. Tiktokenizer on the gold SQL output. Token count ≈ <strong>66</strong>
+      (round to ~100 for planning).
+    </figcaption>
+  </figure>
+
+  <table>
+    <thead><tr><th>Piece</th><th>Measured</th><th>Planning estimate</th></tr></thead>
+    <tbody>
+      <tr><td>Input prompt</td><td>~186</td><td>~200</td></tr>
+      <tr><td>Output SQL</td><td>~66</td><td>~100</td></tr>
+      <tr><td><strong>Total per request</strong></td><td>~252</td><td><strong>~300</strong></td></tr>
+    </tbody>
+  </table>
+
+  <p><strong>Traffic assumption</strong></p>
+  <ul>
+    <li>How many questions users can ask every day: <strong>10,000</strong></li>
+    <li>Monthly requests: \(10{,}000 \times 30 = 300{,}000\)</li>
+  </ul>
+
+  <h2>5. Cost estimation</h2>
+  <h3>5.1 Per-request formula</h3>
+  <p>Example pricing used in class notes: input <strong>$8 / MTok</strong>, output <strong>$40 / MTok</strong>.</p>
+  <div class="formula">
+    200 × 8/1e6 + 100 × 40/1e6 = 0.0016 + 0.004 = $0.0056 / request
+  </div>
+
+  <figure class="inline-result">
+    <img src="handout_assets/page4_img1.png" alt="Result equals 0.0056" />
+    <figcaption>Figure 3. Cost per request ≈ $0.0056</figcaption>
+  </figure>
+
+  <div class="formula">
+    Monthly: 0.0056 × 10,000 × 30 = $1,680
+  </div>
+
+  <figure class="inline-result">
+    <img src="handout_assets/page4_img2.png" alt="Result equals 1,680" />
+    <figcaption>Figure 4. Estimated monthly cost ≈ $1,680 (above the $1,000 ceiling)</figcaption>
+  </figure>
+
+  <h3>5.2 Prompt caching</h3>
+  <ul>
+    <li><a href="https://platform.claude.com/docs/en/about-claude/pricing#prompt-caching">Claude pricing — prompt caching</a></li>
+    <li><a href="https://platform.claude.com/docs/en/build-with-claude/prompt-caching">Prompt caching guide</a></li>
+    <li>Caching mainly applies to <strong>input</strong> tokens for reused system/schema text.</li>
+  </ul>
+  <pre>import anthropic
+
+client = anthropic.Anthropic()
+
+response = client.messages.create(
+    model="claude-sonnet-4-5",  # replace with the model under test
+    max_tokens=1024,
+    system=[{
+        "type": "text",
+        "text": "Long reusable system instructions + schema go here...",
+        "cache_control": {"type": "ephemeral", "ttl": "1h"},
+    }],
+    messages=[{
+        "role": "user",
+        "content": "Which metro has the lowest months of supply ...?",
+    }],
+)
+
+print(response.usage)</pre>
+
+  <h3>5.3 Blended cost shortcut</h3>
+  <div class="formula">
+    (4×8 + 1×40) / 5 = $14.4 / MTok
+    <br />
+    (2×8 + 1×40) / 5 = $11.2 / MTok
+  </div>
+  <div class="formula">
+    300 × 11.2 × 10,000 × 30 / 1,000,000 = $1,008
+  </div>
+  <p>Near the ceiling → shortlist cheaper models and/or reduce tokens.</p>
+
+  <h2>6. Shortlist 5 models</h2>
+  <p>Public leaderboards help you shortlist. They do not replace your eval.</p>
+  <ul>
+    <li>Text-to-SQL leaderboards:
+      <a href="https://bird-bench.github.io/">BIRD</a>
+      (often outdated / custom-model heavy)
+    </li>
+    <li>
+      Coding AI leaderboards:
+      <a href="https://llm-stats.com/leaderboards/best-ai-for-coding">llm-stats.com</a>
+    </li>
+  </ul>
+
+  <p><strong>Your shortlist cost sheet (from class notes):</strong></p>
+  <figure>
+    <img src="handout_assets/page5_img1.png" alt="Model blended cost and monthly cost table" />
+    <figcaption>
+      Figure 5. Example shortlist — Gemini 4 Carbon, GPT-6 Astra, Gemini 4 Argon, Kimi K3.1 Pro, Muse Spark 1.3.
+      GPT-6 Astra (~$2,100/mo) is over the $1k budget.
+    </figcaption>
+  </figure>
+
+  <p>We are going to test the models that fit the budget and see what comes out on quality + latency.</p>
+
+  <h2>7. Latency calculation</h2>
+  <figure>
+    <img src="handout_assets/page6_img1.png" alt="Normalized Latency Score formula" />
+    <figcaption>Figure 6. Normalized Latency Score formula</figcaption>
+  </figure>
+
+  <div class="formula">
+    FinalScore = 0.9 × Rating + 0.1 × LatencyScore (optional)
+  </div>
+
+  <figure>
+    <img src="handout_assets/page6_img2.png" alt="Model ranking table with final scores" />
+    <figcaption>
+      Figure 7. Example ranking after combining quality rating and speed.
+      Gemini 4 Carbon leads in this worked example.
+    </figcaption>
+  </figure>
+
+  <div class="note">Cheapest ≠ best. Quality still dominates (0.9 weight).</div>
+
+  <h2>8. Custom model evals</h2>
+  <p>
+    Public boards answer: “Who is good at SQL somewhere?”
+    Custom evals answer: “Who is good on <strong>our</strong> schema, questions, and budget?”
+  </p>
+  <p><strong>Minimum harness</strong> — for each model:</p>
+  <ol>
+    <li>Load schema + golden questions</li>
+    <li>Generate SQL</li>
+    <li>Execute on your SQLite DB</li>
+    <li>Compare to gold result (execution accuracy)</li>
+    <li>Log <code>match</code> / <code>mismatch</code> / <code>sql_error</code></li>
+    <li>Publish a scoreboard</li>
+  </ol>
+
+  <p><strong>Suggested deliverables</strong></p>
+  <ol>
+    <li>Requirements table</li>
+    <li>Token-count screenshots (like Figures 1–2)</li>
+    <li>Monthly cost estimate for 5 models</li>
+    <li>Golden dataset (15–20+ questions)</li>
+    <li>Eval results + final recommendation with tradeoffs</li>
+  </ol>
+
+  <h2>9. Recommended workflow</h2>
+  <ol>
+    <li>Define constraints ($1k/mo, ≤3s, correctness critical)</li>
+    <li>Freeze the prompt</li>
+    <li>Measure tokens (Tiktokenizer)</li>
+    <li>Estimate monthly cost → drop over-budget models</li>
+    <li>Shortlist 5 models</li>
+    <li>Build / use a golden dataset</li>
+    <li>Run custom evals</li>
+    <li>Apply quality + optional latency weighting</li>
+    <li>Recommend 1 primary model + 1 backup</li>
+  </ol>
+
+  <h2>Appendix — Checklist</h2>
+  <ul class="check">
+    <li>Task defined as Text-to-SQL</li>
+    <li>Cost ceiling written down</li>
+    <li>Latency SLO written down</li>
+    <li>Prompt frozen</li>
+    <li>Tokens measured</li>
+    <li>5 models shortlisted</li>
+    <li>Over-budget models removed</li>
+    <li>Golden set created</li>
+    <li>Execution-accuracy eval run</li>
+    <li>Final model chosen with rationale</li>
+  </ul>
+
+  <footer>
+    Student handout — Selecting the Right LLM for Your AI App: Running Custom Model Evals.
+    Original screenshots from your notes are included as Figures 1–7.
+  </footer>
+</body>
+</html>

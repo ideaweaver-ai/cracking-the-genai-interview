@@ -1,0 +1,202 @@
+[
+  {
+    "id": "kubernetes-eval-manualv2-0013",
+    "query": "My pod won't start after I mounted a Secret. Could a missing key in that Secret be the reason?",
+    "ideal_context": [
+      "# Secrets A Secret is an object that contains a small amount of sensitive data such as a password, a token, or a key. Such information might otherwise be put in a Pod specification or in a container image . Using a Secret means that you don't need to include confidential data in your application code. Because Secrets can be created independently of the Pods that use them, there is less risk of the Secret (and its data) being exposed during the workflow of creating, viewing, and editing Pods. Kubernetes, and applications that run in your cluster, can also take additional precautions with Secrets, such as avoiding writing sensitive data to nonvolatile storage. Secrets are similar to ConfigMaps but are specifically intended to hold confidential data."
+    ],
+    "source_sessions": [
+      "concepts_configuration_secret"
+    ]
+  },
+  {
+    "id": "kubernetes-eval-manualv2-0018",
+    "query": "What is a service account in Kubernetes, in plain English?",
+    "ideal_context": [
+      "# Service Accounts This page introduces the ServiceAccount object in Kubernetes, providing information about how service accounts work, use cases, limitations, alternatives, and links to resources for additional guidance. ## What are service accounts? A service account is a type of non-human account that, in Kubernetes, provides a distinct identity in a Kubernetes cluster. Application Pods, system components, and entities inside and outside the cluster can use a specific ServiceAccount's credentials to identify as that ServiceAccount. This identity is useful in various situations, including authenticating to the API server or implementing identity-based security policies. Service accounts exist as ServiceAccount objects in the API server. Service accounts have the following properties: - Namespaced: Each service account is bound to a Kubernetes namespace . Every namespace gets a default ServiceAccount upon creation. - Lightweight: Service accounts exist in the cluster and are defined in the Kubernetes API. You can quickly create service accounts to enable specific tasks. - Portable: A configuration bundle for a complex containerized workload might include service account definitions for the system's components. The lightweight nature of service accounts"
+    ],
+    "source_sessions": [
+      "concepts_security_service-accounts"
+    ]
+  },
+  {
+    "id": "kubernetes-eval-manualv2-0044",
+    "query": "Why can't someone with the default view role read Secrets?",
+    "ideal_context": [
+      "# Using RBAC Authorization Role-based access control (RBAC) is a method of regulating access to computer or network resources based on the roles of individual users within your organization. RBAC authorization uses the rbac.authorization.k8s.io API group to drive authorization decisions, allowing you to dynamically configure policies through the Kubernetes API. To enable RBAC, start the API server with the --authorization-config flag set to a file that includes the RBAC authorizer; for example: apiVersion : apiserver.config.k8s.io/v1 kind : AuthorizationConfiguration authorizers : ... - type : RBAC ... Or, start the API server with the --authorization-mode flag set to a comma-separated list that includes RBAC ; for example: kube-apiserver --authorization-mode = ...,RBAC --other-options --more-options"
+    ],
+    "source_sessions": [
+      "reference_access-authn-authz_rbac"
+    ]
+  },
+  {
+    "id": "kubernetes-eval-manualv2-0215",
+    "query": "How can other pods discover and talk to DaemonSet pods running on nodes?",
+    "ideal_context": [
+      "# DaemonSet A DaemonSet ensures that all (or some) Nodes run a copy of a Pod. As nodes are added to the cluster, Pods are added to them. As nodes are removed from the cluster, those Pods are garbage collected. Deleting a DaemonSet will clean up the Pods it created. Some typical uses of a DaemonSet are: - running a cluster storage daemon on every node - running a logs collection daemon on every node - running a node monitoring daemon on every node In a simple case, one DaemonSet, covering all nodes, would be used for each type of daemon. A more complex setup might use multiple DaemonSets for a single type of daemon, but with different flags and/or different memory and cpu requests for different hardware types."
+    ],
+    "source_sessions": [
+      "concepts_workloads_controllers_daemonset"
+    ]
+  },
+  {
+    "id": "kubernetes-test-manualv2-0042",
+    "query": "Why should I put app config in a ConfigMap instead of baking it into the image?",
+    "ideal_context": [
+      "# Configure a Pod to Use a ConfigMap Many applications rely on configuration which is used during either application initialization or runtime. Most times, there is a requirement to adjust values assigned to configuration parameters. ConfigMaps are a Kubernetes mechanism that let you inject configuration data into application pods . The ConfigMap concept allow you to decouple configuration artifacts from image content to keep containerized applications portable. For example, you can download and run the same container image to spin up containers for the purposes of local development, system test, or running a live end-user workload. This page provides a series of usage examples demonstrating how to create ConfigMaps and configure Pods using data stored in ConfigMaps."
+    ],
+    "source_sessions": [
+      "tasks_configure-pod-container_configure-pod-configmap"
+    ]
+  },
+  {
+    "id": "kubernetes-test-manualv2-0096",
+    "query": "My Service doesn't seem to work. What's the first thing I should check?",
+    "ideal_context": [
+      "## Does the Service exist? The astute reader will have noticed that you did not actually create a Service yet - that is intentional. This is a step that sometimes gets forgotten, and is the first thing to check. What would happen if you tried to access a non-existent Service? If you have another Pod that consumes this Service by name you would get something like: wget -O- hostnames Resolving hostnames (hostnames)... failed: Name or service not known. wget: unable to resolve host address 'hostnames' The first thing to check is whether that Service actually exists: kubectl get svc hostnames No resources found. Error from server (NotFound): services \"hostnames\" not found Let's create the Service. As before, this is for the walk-through - you can use your own Service's details here. kubectl expose deployment hostnames --port = 80 --target-port = 9376 service/hostnames exposed And read it back: NAME TYPE CLUSTER-IP EXTERNAL-IP PORT(S) AGE hostnames ClusterIP 10.0.1.175 <none> 80/TCP 5s Now you know that the Service exists. As before, this is the same as if you had started the Service with"
+    ],
+    "source_sessions": [
+      "tasks_debug_debug-application_debug-service"
+    ]
+  },
+  {
+    "id": "kubernetes-train-manualv2-00322",
+    "query": "How do I stop a LoadBalancer Service from also opening NodePorts on my nodes?",
+    "ideal_context": [
+      "# Service In Kubernetes, a Service is a method for exposing a network application that is running as one or more Pods in your cluster. A key aim of Services in Kubernetes is that you don't need to modify your existing application to use an unfamiliar service discovery mechanism. You can run code in Pods, whether this is a code designed for a cloud-native world, or an older app you've containerized. You use a Service to make that set of Pods available on the network so that clients can interact with it. If you use a Deployment to run your app, that Deployment can create and destroy Pods dynamically. From one moment to the next, you don't know how many of those Pods are working and healthy; you might not even know what those healthy Pods are named. Kubernetes Pods are created and destroyed to match the desired state of your cluster. Pods are ephemeral resources (you should not expect that an individual Pod is reliable and durable). Each Pod gets its own IP address (Kubernetes expects network plugins to"
+    ],
+    "source_sessions": [
+      "concepts_services-networking_service"
+    ]
+  },
+  {
+    "id": "kubernetes-train-manualv2-00334",
+    "query": "I created an Ingress with no rules \u2014 do I still need to configure something?",
+    "ideal_context": [
+      "listed backend. A defaultBackend is often configured in an Ingress controller to service any requests that do not match a path in the spec. ### DefaultBackend An Ingress with no rules sends all traffic to a single default backend and .spec.defaultBackend is the backend that should handle requests in that case. The defaultBackend is conventionally a configuration option of the Ingress controller and is not specified in your Ingress resources. If no .spec.rules are specified, .spec.defaultBackend must be specified. If defaultBackend is not set, the handling of requests that do not match any of the rules will be up to the ingress controller (consult the documentation for your ingress controller to find out how it handles this case). If none of the hosts or paths match the HTTP request in the Ingress objects, the traffic is routed to your default backend."
+    ],
+    "source_sessions": [
+      "concepts_services-networking_ingress"
+    ]
+  },
+  {
+    "id": "kubernetes-train-manualv2-00342",
+    "query": "If I apply more than one NetworkPolicy to the same pod, which one wins?",
+    "ideal_context": [
+      "a policy applies to the pod for egress. When a pod is isolated for egress, the only allowed connections from the pod are those allowed by the egress list of some NetworkPolicy that applies to the pod for egress. Reply traffic for those allowed connections will also be implicitly allowed. The effects of those egress lists combine additively. By default, a pod is non-isolated for ingress; all inbound connections are allowed. A pod is isolated for ingress if there is any NetworkPolicy that both selects the pod and has \"Ingress\" in its policyTypes ; we say that such a policy applies to the pod for ingress. When a pod is isolated for ingress, the only allowed connections into the pod are those from the pod's node and those allowed by the ingress list of some NetworkPolicy that applies to the pod for ingress. Reply traffic for those allowed connections will also be implicitly allowed. The effects of those ingress lists combine additively. Network policies do not conflict; they are additive. If any policy or policies apply to a given pod"
+    ],
+    "source_sessions": [
+      "concepts_services-networking_network-policies"
+    ]
+  },
+  {
+    "id": "kubernetes-train-manualv2-00871",
+    "query": "What actually happens when I update a Deployment?",
+    "ideal_context": [
+      "# Deployments A Deployment provides declarative updates for Pods and ReplicaSets . You describe a desired state in a Deployment, and the Deployment Controller changes the actual state to the desired state at a controlled rate. You can define Deployments to create new ReplicaSets, or to remove existing Deployments and adopt all their resources with new Deployments."
+    ],
+    "source_sessions": [
+      "concepts_workloads_controllers_deployment"
+    ]
+  },
+  {
+    "id": "kubernetes-train-manualv2-00906",
+    "query": "Why would I use a ReplicaSet instead of a ReplicationController?",
+    "ideal_context": [
+      "# ReplicaSet A ReplicaSet's purpose is to maintain a stable set of replica Pods running at any given time. As such, it is often used to guarantee the availability of a specified number of identical Pods. ## How a ReplicaSet works A ReplicaSet is defined with fields, including a selector that specifies how to identify Pods it can acquire, a number of replicas indicating how many Pods it should be maintaining, and a pod template specifying the data of new Pods it should create to meet the number of replicas criteria. A ReplicaSet then fulfills its purpose by creating and deleting Pods as needed to reach the desired number. When a ReplicaSet needs to create new Pods, it uses its Pod template. A ReplicaSet is linked to its Pods via the Pods' metadata.ownerReferences field, which specifies what resource the current object is owned by. All Pods acquired by a ReplicaSet have their owning ReplicaSet's identifying information within their ownerReferences field. It's through this link that the ReplicaSet knows of the state of the Pods it is maintaining and plans accordingly."
+    ],
+    "source_sessions": [
+      "concepts_workloads_controllers_replicaset"
+    ]
+  },
+  {
+    "id": "kubernetes-train-manualv2-00925",
+    "query": "Can I pause a Job without deleting it?",
+    "ideal_context": [
+      "# Jobs A Job creates one or more Pods and will continue to retry execution of the Pods until a specified number of them successfully terminate. As pods successfully complete, the Job tracks the successful completions. When a specified number of successful completions is reached, the task (ie, Job) is complete. Deleting a Job will clean up the Pods it created. Suspending a Job will delete its active Pods until the Job is resumed again. A simple case is to create one Job object in order to reliably run one Pod to completion. The Job object will start a new Pod if the first Pod fails or is deleted (for example due to a node hardware failure or a node reboot). You can also use a Job to run multiple Pods in parallel. If you want to run a Job (either a single task, or several in parallel) on a schedule, see CronJob ."
+    ],
+    "source_sessions": [
+      "concepts_workloads_controllers_job"
+    ]
+  },
+  {
+    "id": "kubernetes-train-manualv2-00974",
+    "query": "What makes a StatefulSet pod's identity \"stable\"?",
+    "ideal_context": [
+      "will be considered available as soon as it is ready). To learn more about when a Pod is considered ready, see Container Probes . ## Pod Identity StatefulSet Pods have a unique identity that consists of an ordinal, a stable network identity, and stable storage. The identity sticks to the Pod, regardless of which node it's (re)scheduled on. ### Ordinal Index For a StatefulSet with N replicas , each Pod in the StatefulSet will be assigned an integer ordinal, that is unique over the Set. By default, pods will be assigned ordinals from 0 up through N-1. The StatefulSet controller will also add a pod label with this index: apps.kubernetes.io/pod-index . ### Start ordinal .spec.ordinals is an optional field that allows you to configure the integer ordinals assigned to each Pod. It defaults to nil. Within the field, you can configure the following options: - .spec.ordinals.start : If the .spec.ordinals.start field is set, Pods will be assigned ordinals from .spec.ordinals.start up through .spec.ordinals.start + .spec.replicas - 1 ."
+    ],
+    "source_sessions": [
+      "concepts_workloads_controllers_statefulset"
+    ]
+  },
+  {
+    "id": "kubernetes-train-manualv2-01033",
+    "query": "Who is responsible for managing static pods?",
+    "ideal_context": [
+      "# Pods Pods are the smallest deployable units of computing that you can create and manage in Kubernetes. A Pod (as in a pod of whales or pea pod) is a group of one or more containers , with shared storage and network resources, and a specification for how to run the containers. A Pod's contents are always co-located and co-scheduled, and run in a shared context. A Pod models an application-specific \"logical host\": it contains one or more application containers which are relatively tightly coupled. In non-cloud contexts, applications executed on the same physical or virtual machine are analogous to cloud applications executed on the same logical host. As well as application containers, a Pod can contain init containers that run during Pod startup. You can also inject ephemeral containers for debugging a running Pod."
+    ],
+    "source_sessions": [
+      "concepts_workloads_pods"
+    ]
+  },
+  {
+    "id": "kubernetes-train-manualv2-01109",
+    "query": "If the kubelet restarts on a node, do my pods get killed too?",
+    "ideal_context": [
+      "# Pod Lifecycle This page describes the lifecycle of a Pod. Pods follow a defined lifecycle, starting in the Pending phase , moving through Running if at least one of its primary containers starts OK, and then through either the Succeeded or Failed phases depending on whether any container in the Pod terminated in failure. Like individual application containers, Pods are considered to be relatively ephemeral (rather than durable) entities. Pods are created, assigned a unique ID ( UID ), and scheduled to run on nodes where they remain until termination (according to restart policy) or deletion. If a Node dies, the Pods running on (or scheduled to run on) that node are marked for deletion . The control plane marks the Pods for removal after a timeout period."
+    ],
+    "source_sessions": [
+      "concepts_workloads_pods_pod-lifecycle"
+    ]
+  },
+  {
+    "id": "kubernetes-train-manualv2-01530",
+    "query": "My liveness probe keeps failing with a non-zero exit code. What does Kubernetes do next?",
+    "ideal_context": [
+      "should wait 5 seconds before performing the first probe. To perform a probe, the kubelet executes the command cat /tmp/healthy in the target container. If the command succeeds, it returns 0, and the kubelet considers the container to be alive and healthy. If the command returns a non-zero value, the kubelet kills the container and restarts it. When the container starts, it executes this command: /bin/sh -c \"touch /tmp/healthy; sleep 30; rm -f /tmp/healthy; sleep 600\" For the first 30 seconds of the container's life, there is a /tmp/healthy file. So during the first 30 seconds, the command cat /tmp/healthy returns a success code. After 30 seconds, cat /tmp/healthy returns a failure code. Create the Pod: kubectl apply -f https://k8s.io/examples/pods/probe/exec-liveness.yaml Within 30 seconds, view the Pod events: kubectl describe pod liveness-exec The output indicates that no liveness probes have failed yet: Type Reason Age From Message ---- ------ ---- ---- ------- Normal Scheduled 11s default-scheduler Successfully assigned default/liveness-exec to node01 Normal Pulling 9s kubelet, node01 Pulling image \"registry.k8s.io/busybox:1.27.2\" Normal Pulled 7s kubelet, node01 Successfully pulled image \"registry.k8s.io/busybox:1.27.2\" Normal Created 7s"
+    ],
+    "source_sessions": [
+      "tasks_configure-pod-container_configure-liveness-readiness-startup-probes"
+    ]
+  },
+  {
+    "id": "kubernetes-train-manualv2-01554",
+    "query": "What does runAsUser in a pod securityContext actually control?",
+    "ideal_context": [
+      "## Set the security context for a Pod To specify security settings for a Pod, include the securityContext field in the Pod specification. The securityContext field is a PodSecurityContext object. The security settings that you specify for a Pod apply to all Containers in the Pod. Here is a configuration file for a Pod that has a securityContext and an emptyDir volume: apiVersion : v1 kind : Pod metadata : name : security-context-demo spec : securityContext : runAsUser : 1000 runAsGroup : 3000 fsGroup : 2000 supplementalGroups : [ 4000 ] volumes : - name : sec-ctx-vol emptyDir : {} containers : - name : sec-ctx-demo image : busybox:1.28 command : [ \"sh\" , \"-c\" , \"sleep 1h\" ] volumeMounts : - name : sec-ctx-vol mountPath : /data/demo securityContext : allowPrivilegeEscalation : false In the configuration file, the runAsUser field specifies that for any Containers in the Pod, all processes run with user ID 1000. The runAsGroup field specifies the primary group ID of 3000 for all processes within any containers of the Pod. If this field is omitted, the"
+    ],
+    "source_sessions": [
+      "tasks_configure-pod-container_security-context"
+    ]
+  },
+  {
+    "id": "kubernetes-train-manualv2-01977",
+    "query": "What is the downward API and when would I use it?",
+    "ideal_context": [
+      "# Expose Pod Information to Containers Through Environment Variables This page shows how a Pod can use environment variables to expose information about itself to containers running in the Pod, using the downward API . You can use environment variables to expose Pod fields, container fields, or both. In Kubernetes, there are two ways to expose Pod and container fields to a running container: - Environment variables , as explained in this task - Volume files Together, these two ways of exposing Pod and container fields are called the downward API. As Services are the primary mode of communication between containerized applications managed by Kubernetes, it is helpful to be able to discover them at runtime. Read more about accessing Services here ."
+    ],
+    "source_sessions": [
+      "tasks_inject-data-application_environment-variable-expose-pod-information"
+    ]
+  },
+  {
+    "id": "kubernetes-train-manualv2-02124",
+    "query": "Under the hood, what does a Kubernetes Service point to?",
+    "ideal_context": [
+      "kubectl expose : kubectl expose deployment/my-nginx service/my-nginx exposed This is equivalent to kubectl apply -f in the following yaml: apiVersion : v1 kind : Service metadata : name : my-nginx labels : run : my-nginx spec : ports : - port : 80 protocol : TCP selector : run : my-nginx This specification will create a Service which targets TCP port 80 on any Pod with the run: my-nginx label, and expose it on an abstracted Service port ( targetPort : is the port the container accepts traffic on, port : is the abstracted Service port, which can be any port other pods use to access the Service). View Service API object to see the list of supported fields in service definition. Check your Service: kubectl get svc my-nginx NAME TYPE CLUSTER-IP EXTERNAL-IP PORT(S) AGE my-nginx ClusterIP 10.0.162.149 <none> 80/TCP 21s As mentioned previously, a Service is backed by a group of Pods. These Pods are exposed through EndpointSlices . The Service's selector will be evaluated continuously and the results will be POSTed to an EndpointSlice that is connected to"
+    ],
+    "source_sessions": [
+      "tutorials_services_connect-applications-service"
+    ]
+  },
+  {
+    "id": "kubernetes-train-manualv2-02160",
+    "query": "What do I need to tell Kubernetes when I create a Deployment for my app?",
+    "ideal_context": [
+      "## Deploying your first app on Kubernetes You can create and manage a Deployment by using the Kubernetes command line interface, kubectl . kubectl uses the Kubernetes API to interact with the cluster. In this module, you'll learn the most common kubectl commands needed to create Deployments that run your applications on a Kubernetes cluster. When you create a Deployment, you'll need to specify the container image for your application and the number of replicas that you want to run. You can change that information later by updating your Deployment; Module 5 and Module 6 of the bootcamp discuss how you can scale and update your Deployments. For your first Deployment, you'll use a hello-node application packaged in a Docker container that uses NGINX to echo back all the requests. (If you didn't already try creating a hello-node application and deploying it using a container, you can do that first by following the instructions from the Hello Minikube tutorial .) You will need to have installed kubectl as well. If you need to install it, visit install tools . Now"
+    ],
+    "source_sessions": [
+      "tutorials_kubernetes-basics_deploy-app_deploy-intro"
+    ]
+  }
+]

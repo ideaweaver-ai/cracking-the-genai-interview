@@ -1,0 +1,49 @@
+# Run either way from the project root:
+#   python -m src.rag_pipeline
+#   python src/rag_pipeline.py
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from src.reranker import RerankingRetriever
+from src.generator import generate
+from langsmith import traceable
+
+
+
+class RagPipeline:
+    def __init__(self, fetch_k=10, top_k=5):
+        # one retriever instance — loads the store + reranker model once
+        self.retriever = RerankingRetriever(fetch_k=fetch_k, top_k=top_k)
+
+    @traceable(run_type="chain", name="RagPipeline")
+    def invoke(self, query: str) -> dict:
+        # 1. RETRIEVE: over-fetch then rerank down to top_k Documents
+        docs = self.retriever.invoke(query)
+
+        # 2. UNPACK: generator wants list[str], the triad wants the same strings
+        context = [doc.page_content for doc in docs]
+
+        # 3. GENERATE: grounded answer from the retrieved context
+        answer = generate(query, context)
+
+        # return all three legs of the triad so the eval harness can score them
+        return {
+            "query": query,
+            "context": context,
+            "answer": answer,
+        }
+
+
+# quick manual smoke test
+if __name__ == "__main__":
+    rag = RagPipeline()
+    result = rag.invoke("What is a Kubernetes Deployment?")
+    print("QUERY:  ", result["query"])
+    print("ANSWER: ", result["answer"])
+    print("\nCONTEXT CHUNKS:")
+    for i, chunk in enumerate(result["context"]):
+        print(f"  [{i}] {chunk[:120]}...")
